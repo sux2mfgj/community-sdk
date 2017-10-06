@@ -1,11 +1,11 @@
-package com.example.fftsample;
+package com.emotiv.fftsample;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import com.example.fftsample.R;
+import com.emotiv.fftsample.R;
 
 import android.os.Build;
 import android.support.v4.content.ContextCompat;

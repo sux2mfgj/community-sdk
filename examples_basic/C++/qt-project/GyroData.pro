@@ -32,9 +32,6 @@ win32{
 }else:unix{
     LIBS += -L/usr/lib/x86_64-linux-gnu/mesa -lGL
     LIBS += -L/usr/lib/x86_64-linux-gnu -lGLU
-    LIBS+=-lglut
+    LIBS += -lglut
 }
 
-#message ("GYRO LIB $${LIBS}")
-#message ("GYRO DESTDIR $${DESTDIR}")
-#message ("GYRO OUT_PWD $${OUT_PWD}")

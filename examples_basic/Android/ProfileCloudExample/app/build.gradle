@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.0"
 
     defaultConfig {
-        applicationId "com.example.profilecloudexample"
+        applicationId "com.emotiv.profilecloudexample"
         minSdkVersion 19
         targetSdkVersion 19
     }

@@ -1,4 +1,4 @@
-package com.example.profilecloudexample;
+package com.emotiv.profilecloudexample;
 
 import com.emotiv.sdk.*;
 import com.emotiv.bluetooth.*;

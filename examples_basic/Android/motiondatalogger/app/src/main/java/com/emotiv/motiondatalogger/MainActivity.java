@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.example.com.emotiv.eeglogger.R;
+import com.emotiv.motiondata.R;
 
 import android.os.Build;
 import android.os.Bundle;
