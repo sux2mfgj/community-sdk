@@ -129,25 +129,17 @@ int main(int argc, char** argv)
     debitInfos.remainingSessions = 0;
     result = IEE_GetDebitInformation(LICENSE_KEY.c_str(), &debitInfos);
 
-    if (debitInfos.total_session_inYear == 0)
-    {
-        std::cout << std::endl;
-        std::cout << "Remaining Sessions in month : " << debitInfos.remainingSessions << std::endl;
-        std::cout << "Daily debit limitation      : " << debitInfos.daily_debit_limit << std::endl;
-        std::cout << std::endl;
-
-        std::cout << std::endl;
-        std::cout << "Total debit today           : " << debitInfos.total_debit_today << std::endl;
-        std::cout << "Remaining time before resetting daily debit limitation: " << debitInfos.time_reset << "(seconds)" << std::endl;
-        std::cout << std::endl;
-    }    
-    else {
-        std::cout << std::endl;
-        std::cout << "Remaining Sessions in year : " << debitInfos.remainingSessions << std::endl;
-        std::cout << "the total number of session can be debitable in year : " << debitInfos.total_session_inYear << std::endl;
-        std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "Remaining Sessions: " << debitInfos.remainingSessions << std::endl;
+    int sessionMonth = debitInfos.total_session_inMonth;
+    int sessionYear  = debitInfos.total_session_inYear;
+    if (sessionMonth >= 0) {
+        std::cout << "The total number of session can be debitable in month: " << sessionMonth << std::endl;
     }
-
+    else {
+        std::cout << "The total number of session can be debitable in year: " << sessionYear << std::endl;
+    }
+    std::cout << std::endl;
 
     //Active license with debit
     unsigned int debitNum = 0; //default value
@@ -179,10 +171,7 @@ int main(int argc, char** argv)
         break;
     case EDK_OVER_DEVICE_LIST:
         std::cout << "Over device list" << std::endl;
-        break;  
-    case EDK_DAILY_DEBIT_LIMITED:
-        std::cout << "Over daily number of debits" << std::endl;
-        break;
+        break;      
     case EDK_ACCESS_DENIED:
         std::cout << "Access denied" << std::endl;
         break;
