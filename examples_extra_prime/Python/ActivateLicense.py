@@ -55,9 +55,8 @@ debitNum    = c_int(0)
 class DebitInfos_t(Structure):
     _fields_ = [
         ("remainingSessions",      c_int),
-        ("daily_debit_limit",      c_int),
-        ("total_debit_today",      c_int),
-        ("time_reset",     c_int)]
+        ("total_session_inMonth",      c_int),
+        ("total_session_inYear",      c_int)]
 
 IEE_GetDebitInformation = libEDK.IEE_GetDebitInformation
 IEE_GetDebitInformation.restype  = c_int
@@ -140,6 +139,28 @@ if libEDK.EC_Login(userName, password) != 0:
 
 print "Logged in as %s" % userName
 
+
+#Debit Info
+print "==================================================================="
+print "Debit Information"
+debitInfos = DebitInfos_t(0,0,0)
+
+#We can call this API any time to check current License information
+result = IEE_GetDebitInformation(your_license_key, byref(debitInfos))
+if result == EDK_OK:
+    if ( debitInfos.total_session_inYear > 0 ):
+        print 'Remain Session                       =', debitInfos.remainingSessions, "\n"
+        print 'Total debitable sessions in Year     =', debitInfos.total_session_inYear, "\n"
+    elif ( debitInfos.total_session_inMonth > 0 ):
+        print 'Remain Session                       =', debitInfos.remainingSessions, "\n"
+        print 'Total debitable sessions in Month    =', debitInfos.total_session_inMonth, "\n"
+    else :
+        print 'Remain Session                        unlimitted',"\n"
+        print 'Total debitable sessions in Year      unlimitted',"\n"
+
+else :
+    print 'Get Debit Information unsuccessfully', "\n"
+
 print "Please request number of debit"
 debitNum = int(raw_input())
 
@@ -161,19 +182,19 @@ licenseInfos_err(result)
 print "==================================================================="
 print "License information"
 if licenseInfos.scopes == 1:
-    print 'License type                   = EEG', "\n"
+    print 'License type            = EEG', "\n"
 elif licenseInfos.scopes == 2:
-    print 'License type                   = PM', "\n"
+    print 'License type            = PM', "\n"
 elif licenseInfos.scopes == 3:
-    print 'License type                   = EEG + PM', "\n"
+    print 'License type            = EEG + PM', "\n"
 else:
     print 'No License type', "\n"
 
 date_from = convertEpochToTime(licenseInfos.date_from)
-print 'From Date                =', date_from
+print 'From Date               =', date_from
 
 date_to = convertEpochToTime(licenseInfos.date_to)
-print 'To Date                  =', date_to , "\n"
+print 'To Date                 =', date_to , "\n"
 
 soft_limit_date = convertEpochToTime(licenseInfos.soft_limit_date)
 print 'Soft Limit Date         =', soft_limit_date , "\n"
@@ -187,19 +208,6 @@ print 'Total used Quota        =', licenseInfos.usedQuota,"\n"
 print 'Total Quota             =', licenseInfos.quota,"\n"
 
 
-#Debit Info
-print "==================================================================="
-print "Debit Information"
-debitInfos = DebitInfos_t(0,0,0,0)
 
-#We can call this API any time to check current License information
-result = IEE_GetDebitInformation(your_license_key, byref(debitInfos))
-print 'Remain Session                   =', debitInfos.remainingSessions, "\n"
-
-print 'Daily debit limit                =', debitInfos.daily_debit_limit, "\n"
-
-print 'Total debit a day                =', debitInfos.total_debit_today, "\n"
-
-print 'Remained time(seconds) before resetting debit limitation a day        =', debitInfos.time_reset, "\n"
 
     
