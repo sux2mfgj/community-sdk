@@ -61,20 +61,13 @@ bool isOnline = false;
     }
 }
 
-- (NSString *)timeFormatted:(int)totalSeconds {
-    int minutes = (totalSeconds / 60) % 60;
-    int hours = totalSeconds / 3600;
-    
-    return [NSString stringWithFormat:@"%02d:%02d",hours, minutes];
-}
-
 - (void) authorizeLicense {
     if (isOnline) {
         _lblResult.textColor = [NSColor blackColor];
         _lblResult.stringValue = @"Authorizing license ... Please wait.";
         NSString * license = _txtAuthorizeLicenseKey.stringValue;
         unsigned int debitNum = (_txtDebitNum.integerValue > 0) ? (unsigned int)_txtDebitNum.integerValue : 0;
-        NSInteger result = IEE_AuthorizeLicense([license UTF8String], debitNum);
+        int result = IEE_AuthorizeLicense([license UTF8String], debitNum);
         
         if (result == EDK_OK && loggedIn) {
             _lblResult.stringValue = @"Activated Successful";
@@ -83,13 +76,32 @@ bool isOnline = false;
             // Get debit information
             NSString * license = _txtAuthorizeLicenseKey.stringValue;
             IEE_DebitInfos_t debitInfos;
-            IEE_GetDebitInformation([license UTF8String], &debitInfos);
+            result = IEE_GetDebitInformation([license UTF8String], &debitInfos);
+            if(result == EDK_OK)
+            {
+                if(debitInfos.total_session_inYear > 0)
+                {
+                    _remainingSession.integerValue = debitInfos.remainingSessions;
+                    _totalSessions.integerValue    = debitInfos.total_session_inYear;
+                    _typeLicense.stringValue       = @"Year License";
+                }
+                else if (debitInfos.total_session_inMonth > 0)
+                {
+                    _remainingSession.integerValue = debitInfos.remainingSessions;
+                    _totalSessions.integerValue = debitInfos.total_session_inMonth;
+                    _typeLicense.stringValue       = @"Month License";
+                }
+                else
+                {
+                    _remainingSession.stringValue = @"unlimitted";
+                    _totalSessions.stringValue    = @"unlimitted";
+                    _typeLicense.stringValue       = @"Unlimitted License";
+                }
             
-            _remainingSession.integerValue = debitInfos.remainingSessions;
-            _dailyDebitLimit.integerValue = debitInfos.daily_debit_limit;
-            _todayDebit.integerValue = debitInfos.total_debit_today;
-            _dailyQuotaReset.stringValue = [self timeFormatted:(debitInfos.time_reset)];
-            
+            }
+            else{
+                //Debit unsuccessfully
+            }
             @autoreleasepool {
                 [NSThread detachNewThreadSelector:@selector(showLicenseInfo) toTarget:self withObject:nil];
             }
