@@ -65,7 +65,7 @@ Table below describe examples indetail :
 
 | Name  | Could run without license |Available with language|Support Platform|
 |---|---|---|---|
-| AverageBandPowers (FFTSample) | Yes | C++, C#, Java, Python, Objective-C |Win, Mac, Ubuntu, Android, iOS|
+| AverageBandPowers (FFTSample) | Yes | C++, C#, Java, Python, Objective-C, Matlab |Win, Mac, Ubuntu, Android, iOS|
 | EmoStateLogger | Yes | C++, C#, Java, Python | Win, Mac, Ubuntu |
 | FacialExpressionDemo | Yes | C++, Matlab | Win, Mac, Ubuntu |
 | FacialExpression | Yes | Objective-C, Java, Matlab | Mac, iOS, Android |
@@ -74,7 +74,7 @@ Table below describe examples indetail :
 | MentalCommand | Yes | C++, Objective-C, Java | Win, Mac, Ubuntu, Android, iOS |
 | MentalCommandWithCloudProfile | Yes | C++, C#, Java, Python | Win, Mac, Ubuntu |
 | MentalCommandWithLocalProfile | Yes | C++, C# | Win, Mac |
-| MotionDataLogger | Yes | C++, C#, Java, Python, Objective-C | Win, Mac, Ubuntu, Android, iOS |
+| MotionDataLogger | Yes | C++, C#, Java, Python, Objective-C, Matlab | Win, Mac, Ubuntu, Android, iOS |
 | MultiDongleConnection | Yes | C++, C#, Python | Win, Mac, Ubuntu |
 | SavingAndLoadingProfileCloud | Yes | C++, C#, Java, Python |Win, Mac, Ubuntu|
 | ProfileCloudExample | Yes | Objective-C, Java | Mac, Android, iOS|
