@@ -72,6 +72,12 @@ public class EmoStateLogger {
 							.IS_FacialExpressionIsRightWink(eState) == 1)
 						System.out.println("RightWink");
                     
+					System.out.print("MentalCommandGetCurrentAction: ");
+					System.out.println(EmoState.INSTANCE
+							.IS_MentalCommandGetCurrentAction(eState));
+					System.out.print("CurrentActionPower: ");
+					System.out.println(EmoState.INSTANCE
+							.IS_MentalCommandGetCurrentActionPower(eState));
 				}
 			} else if (state != EdkErrorCode.EDK_NO_EVENT.ToInt()) {
 				System.out.println("Internal error in Emotiv Engine!");
