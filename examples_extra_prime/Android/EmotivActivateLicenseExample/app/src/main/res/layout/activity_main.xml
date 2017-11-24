@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="emotiv.com.emotivactivatelicenseexample.MainActivity">
+
+    <Button
+        android:id="@+id/btnRefresh"
+        android:layout_width="149dp"
+        android:layout_height="37dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:text="refresh"
+        app:layout_constraintBottom_toTopOf="@+id/EmotivID"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvLicenseType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="License Type"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvSessions"
+        app:layout_constraintStart_toStartOf="@+id/tvSessions" />
+
+    <TextView
+        android:id="@+id/tvSessions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:lineSpacingExtra="8sp"
+        android:text="Sessions"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvUsedSessions"
+        app:layout_constraintStart_toStartOf="@+id/tvUsedSessions" />
+
+    <TextView
+        android:id="@+id/tvUsedSessions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="Used sessions"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvSeats"
+        app:layout_constraintStart_toStartOf="@+id/tvSeats" />
+
+    <TextView
+        android:id="@+id/tvSeats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="Seats"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvFromDate"
+        app:layout_constraintStart_toStartOf="@+id/tvFromDate" />
+
+    <TextView
+        android:id="@+id/tvFromDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="From date"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvToDate"
+        app:layout_constraintStart_toStartOf="@+id/tvToDate" />
+
+    <TextView
+        android:id="@+id/tvToDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="To date"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvSoftLimitDate"
+        app:layout_constraintStart_toStartOf="@+id/tvSoftLimitDate" />
+
+    <TextView
+        android:id="@+id/tvSoftLimitDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="8sp"
+        android:text="Soft limit date"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvHardLimitDate"
+        app:layout_constraintStart_toStartOf="@+id/tvHardLimitDate" />
+
+    <TextView
+        android:id="@+id/tvHardLimitDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:lineSpacingExtra="8sp"
+        android:text="Hard limit date"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btnRefresh"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvLicenseTypeVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvLicenseType"
+        app:layout_constraintEnd_toEndOf="@+id/tvSessionsVal" />
+
+    <TextView
+        android:id="@+id/tvSessionsVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSessions"
+        app:layout_constraintEnd_toEndOf="@+id/tvUsedSessionsVal" />
+
+    <TextView
+        android:id="@+id/tvUsedSessionsVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvUsedSessions"
+        app:layout_constraintEnd_toEndOf="@+id/tvSeatsVal" />
+
+    <TextView
+        android:id="@+id/tvSeatsVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSeats"
+        app:layout_constraintEnd_toEndOf="@+id/tvFromDateVal" />
+
+    <TextView
+        android:id="@+id/tvFromDateVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvFromDate"
+        app:layout_constraintEnd_toEndOf="@+id/tvToDateVal" />
+
+    <TextView
+        android:id="@+id/tvToDateVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvToDate"
+        app:layout_constraintEnd_toEndOf="@+id/tvSoftLimitDateVal" />
+
+    <TextView
+        android:id="@+id/tvSoftLimitDateVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSoftLimitDate"
+        app:layout_constraintEnd_toEndOf="@+id/tvHardLimitDateVal" />
+
+    <TextView
+        android:id="@+id/tvHardLimitDateVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:lineSpacingExtra="8sp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/tvHardLimitDate"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/EmotivID"
+        android:layout_width="0dp"
+        android:layout_height="38dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:hint="EmotivID"
+        android:inputType="text"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/Password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/LicenseKey"
+        android:layout_width="0dp"
+        android:layout_height="42dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:hint="License Key"
+        android:inputType="text"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnAuthorize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/Password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="143dp"
+        android:layout_height="35dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:text="Login"
+        app:layout_constraintBottom_toTopOf="@+id/LicenseKey"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnAuthorize"
+        android:layout_width="179dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="72dp"
+        android:layout_marginStart="8dp"
+        android:text="Authorize"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/DebitNumber"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/btnSetActive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Set Active"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnAuthorize"
+        app:layout_constraintTop_toTopOf="@+id/btnAuthorize" />
+
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Emotiv SDK License Activate Example"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvLicenseType"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="383dp"
+        android:layout_height="26dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="status"
+        android:textAlignment="center"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/DebitNumber"
+        android:layout_width="94dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="72dp"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:hint="Debit Number"
+        android:inputType="numberSigned"
+        android:textAlignment="center"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

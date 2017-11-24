@@ -100,83 +100,6 @@ Y = pointer(EyeY)
 Left = pointer(EyeLidLeft)
 Right = pointer(EyeLidRight)
 
-#Perfomance metrics Model Parameters /long term excitement not present
-
-RawScore = c_double(0)
-MinScale = c_double(0)
-MaxScale = c_double(0)
-
-Raw = pointer(RawScore)
-Min = pointer(MinScale)
-Max = pointer(MaxScale)
-
-
-# short term excitement
-#IS_PerformanceMetricGetInstantaneousExcitementModelParams = libEDK.#IS_PerformanceMetricGetInstantaneousExcitementModelParams
-#IS_PerformanceMetricGetInstantaneousExcitementModelParams.restype = c_void_p
-#IS_PerformanceMetricGetInstantaneousExcitementModelParams.argtypes = [c_void_p]
-
-# relaxation
-IS_PerformanceMetricGetRelaxationModelParams = libEDK.IS_PerformanceMetricGetRelaxationModelParams
-IS_PerformanceMetricGetRelaxationModelParams.restype = c_void_p
-IS_PerformanceMetricGetRelaxationModelParams.argtypes = [c_void_p]
-
-# stress
-IS_PerformanceMetricGetStressModelParams = libEDK.IS_PerformanceMetricGetStressModelParams
-IS_PerformanceMetricGetStressModelParams.restype = c_void_p
-IS_PerformanceMetricGetStressModelParams.argtypes = [c_void_p]
-
-# boredom/engagement
-IS_PerformanceMetricGetEngagementBoredomModelParams = libEDK.IS_PerformanceMetricGetEngagementBoredomModelParams
-IS_PerformanceMetricGetEngagementBoredomModelParams.restype = c_void_p
-IS_PerformanceMetricGetEngagementBoredomModelParams.argtypes = [c_void_p]
-
-# interest
-IS_PerformanceMetricGetInterestModelParams = libEDK.IS_PerformanceMetricGetInterestModelParams
-IS_PerformanceMetricGetInterestModelParams.restype = c_void_p
-IS_PerformanceMetricGetInterestModelParams.argtypes = [c_void_p]
-
-# focus
-IS_PerformanceMetricGetFocusModelParams = libEDK.IS_PerformanceMetricGetFocusModelParams
-IS_PerformanceMetricGetFocusModelParams.restype = c_void_p
-IS_PerformanceMetricGetFocusModelParams.argtypes = [c_void_p]
-
-#Perfomance metrics Normalized Scores
-
-# long term excitement
-IS_PerformanceMetricGetExcitementLongTermScore = libEDK.IS_PerformanceMetricGetExcitementLongTermScore
-IS_PerformanceMetricGetExcitementLongTermScore.restype = c_float
-IS_PerformanceMetricGetExcitementLongTermScore.argtypes = [c_void_p]
-
-# short term excitement
-IS_PerformanceMetricGetInstantaneousExcitementScore = libEDK.IS_PerformanceMetricGetInstantaneousExcitementScore
-IS_PerformanceMetricGetInstantaneousExcitementScore.restype = c_float
-IS_PerformanceMetricGetInstantaneousExcitementScore.argtypes = [c_void_p]
-
-# relaxation
-IS_PerformanceMetricGetRelaxationScore = libEDK.IS_PerformanceMetricGetRelaxationScore
-IS_PerformanceMetricGetRelaxationScore.restype = c_float
-IS_PerformanceMetricGetRelaxationScore.argtypes = [c_void_p]
-
-# stress
-IS_PerformanceMetricGetStressScore = libEDK.IS_PerformanceMetricGetStressScore
-IS_PerformanceMetricGetStressScore.restype = c_float
-IS_PerformanceMetricGetStressScore.argtypes = [c_void_p]
-
-# boredom/engagement
-IS_PerformanceMetricGetEngagementBoredomScore = libEDK.IS_PerformanceMetricGetEngagementBoredomScore
-IS_PerformanceMetricGetEngagementBoredomScore.restype = c_float
-IS_PerformanceMetricGetEngagementBoredomScore.argtypes = [c_void_p]
-
-# interest
-IS_PerformanceMetricGetInterestScore = libEDK.IS_PerformanceMetricGetInterestScore
-IS_PerformanceMetricGetInterestScore.restype = c_float
-IS_PerformanceMetricGetInterestScore.argtypes = [c_void_p]
-
-# focus
-IS_PerformanceMetricGetFocusScore = libEDK.IS_PerformanceMetricGetFocusScore
-IS_PerformanceMetricGetFocusScore.restype = c_float
-IS_PerformanceMetricGetFocusScore.argtypes = [c_void_p]
 
 # -------------------------------------------------------------------------
 
@@ -212,39 +135,6 @@ def logEmoState(userID, eState):
     IS_FacialExpressionGetEyeLocation(eState,Left,Right)
     print >>f, EyeLidLeft.value, ",",
     print >>f, EyeLidRight.value, ",",
-
-    # Performance metrics Suite results
-    print >>f, IS_PerformanceMetricGetExcitementLongTermScore(eState), ",",
-    print >>f, IS_PerformanceMetricGetInstantaneousExcitementScore(eState), ",",    
-    #IS_PerformanceMetricGetInstantaneousExcitementModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
-    print >>f, IS_PerformanceMetricGetStressScore(eState), ",",
-    IS_PerformanceMetricGetStressModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
-    print >>f, IS_PerformanceMetricGetRelaxationScore(eState), ",",
-    IS_PerformanceMetricGetRelaxationModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
-    print >>f, IS_PerformanceMetricGetEngagementBoredomScore(eState), ",",
-    IS_PerformanceMetricGetEngagementBoredomModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
-    print >>f, IS_PerformanceMetricGetInterestScore(eState), ",",
-    IS_PerformanceMetricGetInterestModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
-    print >>f, IS_PerformanceMetricGetFocusScore(eState), ",",
-    IS_PerformanceMetricGetFocusModelParams(eState, Raw, Min, Max)
-    print >>f, RawScore.value, ",",
-    print >>f, MinScale.value, ",",
-    print >>f, MaxScale.value, ",",
     print >>f, '\n',
     
 def kbhit():
@@ -281,11 +171,7 @@ PM_FOCUS      = 0x0020
 # -------------------------------------------------------------------------
 header = ['Time', 'UserID', 'Wireless Signal Status', 'Blink', 'Wink Left', 'Wink Right',
           'Surprise', 'Furrow', 'Smile', 'Clench',
-          'EyeLocationHoriz', 'EyeLocationVert','EyelidStateLeft', 'EyelidStateRight', 'LongTermExcitementRawNorm', 
-          'ShortTermExcitementRawNorm','ShortTermExcitementRaw', 'ShortTermExcitementMin', 'ShortTermExcitementMax',
-          'RelaxationRawNorm','RelaxationRaw','RelaxationMin','RelaxationMax',
-          'StressRawNorm','StressRaw','StressMin','StressMax', 'EngagementRawNorm','EngagementRaw', 'EngagementMin','EngagementMax',
-          'InterestRawNorm','InterestRaw', 'InterestMin', 'InterestMax','FocusRawNorm','FocusRaw','FocusMin','FocusMax']
+          'EyeLocationHoriz', 'EyeLocationVert','EyelidStateLeft', 'EyelidStateRight']
 
 input = ''
 print "==================================================================="

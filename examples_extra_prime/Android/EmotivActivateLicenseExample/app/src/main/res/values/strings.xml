@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Emotiv Activate License Example</string>
+    <string name="title_status">Status</string>
+    <string name="title_authorize">Authorize</string>
+</resources>
