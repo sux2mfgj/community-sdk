@@ -19,11 +19,8 @@ namespace EmoStateLogger
     class EmoStateLogger
     {
         static int userID = -1;
-        static System.IO.StreamWriter engineLog = new System.IO.StreamWriter("engineLog.log");
-        static System.IO.StreamWriter expLog = new System.IO.StreamWriter("FacialExpression.log");
-        static System.IO.StreamWriter cogLog = new System.IO.StreamWriter("MentalCommand.log");
-
-        static Boolean enableLoger = false;
+        static System.IO.StreamWriter engineLog = new System.IO.StreamWriter("engineLog.csv");
+        static System.IO.StreamWriter expLog = new System.IO.StreamWriter("FacialExpression.csv");
 
         static void engine_EmoEngineConnected(object sender, EmoEngineEventArgs e)
         {
@@ -74,21 +71,6 @@ namespace EmoStateLogger
             engineLog.Flush();
         }  
 
-        static void engine_MentalCommandEmoStateUpdated(object sender, EmoStateUpdatedEventArgs e)
-        {
-            EmoState es = e.emoState;
-
-            Single timeFromStart = es.GetTimeFromStart();
-
-            EdkDll.IEE_MentalCommandAction_t cogAction = es.MentalCommandGetCurrentAction();
-            Single power = es.MentalCommandGetCurrentActionPower();
-            Boolean isActive = es.MentalCommandIsActive();
-
-            cogLog.WriteLine("{0},{1},{2},{3}", timeFromStart, cogAction, power, isActive);
-            cogLog.Flush();
-            if (enableLoger)
-                Console.WriteLine("{0},{1},{2},{3}", timeFromStart, cogAction, power, isActive);
-        }
 
         static void engine_FacialExpressionEmoStateUpdated(object sender, EmoStateUpdatedEventArgs e)
         {
@@ -128,10 +110,10 @@ namespace EmoStateLogger
             Single upperFacePower = es.FacialExpressionGetUpperFaceActionPower();
             EdkDll.IEE_FacialExpressionAlgo_t lowerFaceAction = es.FacialExpressionGetLowerFaceAction();
             Single lowerFacePower = es.FacialExpressionGetLowerFaceActionPower();
-            for (int i = 0; i < expAlgoList.Length; ++i)
-            {
-                isExpActiveList[i] = es.FacialExpressionIsActive(expAlgoList[i]);
-            }
+            //for (int i = 0; i < expAlgoList.Length; ++i)
+            //{
+            //    isExpActiveList[i] = es.FacialExpressionIsActive(expAlgoList[i]);
+            //}
 
             expLog.Write(
                 "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},",
@@ -140,124 +122,12 @@ namespace EmoStateLogger
                 isLookingDown, leftEye, rightEye,
                 x, y, eyebrowExtent, smileExtent, upperFaceAction,
                 upperFacePower, lowerFaceAction, lowerFacePower);
-            for (int i = 0; i < expAlgoList.Length; ++i)
-            {
-                expLog.Write("{0},", isExpActiveList[i]);
-            }
+            //for (int i = 0; i < expAlgoList.Length; ++i)
+            //{
+            //    expLog.Write("{0},", isExpActiveList[i]);
+            //}
             expLog.WriteLine("");
             expLog.Flush();
-        }
-
-        static void engine_MentalCommandTrainingStarted(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("Start MentalCommand Training");
-        }
-
-        static void engine_MentalCommandTrainingSucceeded(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("MentalCommand Training Success. (A)ccept/Reject?");
-            ConsoleKeyInfo cki = Console.ReadKey(true);
-            if (cki.Key == ConsoleKey.A)
-            {
-                Console.WriteLine("Accept!!!");
-                EmoEngine.Instance.MentalCommandSetTrainingControl((uint)userID, EdkDll.IEE_MentalCommandTrainingControl_t.MC_ACCEPT);
-            }
-            else
-            {
-                EmoEngine.Instance.MentalCommandSetTrainingControl((uint)userID, EdkDll.IEE_MentalCommandTrainingControl_t.MC_REJECT);
-            }
-        }
-
-        static void engine_MentalCommandTrainingCompleted(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("MentalCommand Training Completed.");
-        }
-
-        static void engine_MentalCommandTrainingRejected(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("MentalCommand Training Rejected.");
-        }
-
-        static void engine_FacialExpressionTrainingStarted(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("Start FacialExpression Training");
-        }
-
-        static void engine_FacialExpressionTrainingSucceeded(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("FacialExpression Training Success. (A)ccept/Reject?");
-            ConsoleKeyInfo cki = Console.ReadKey(true);
-            if (cki.Key == ConsoleKey.A)
-            {
-                Console.WriteLine("Accept!!!");
-                EmoEngine.Instance.FacialExpressionSetTrainingControl((uint)userID, EdkDll.IEE_FacialExpressionTrainingControl_t.FE_ACCEPT);
-            }
-            else
-            {
-                EmoEngine.Instance.FacialExpressionSetTrainingControl((uint)userID, EdkDll.IEE_FacialExpressionTrainingControl_t.FE_REJECT);
-            }
-        }
-
-        static void engine_FacialExpressionTrainingCompleted(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("FacialExpressione Training Completed.");
-        }
-
-        static void engine_FacialExpressionTrainingRejected(object sender, EmoEngineEventArgs e)
-        {
-            Console.WriteLine("FacialExpression Training Rejected.");
-        }
-
-        static void keyHandler(ConsoleKey key)
-        {
-            switch (key)
-            {
-                case ConsoleKey.F1:                    					
-					ulong action1 = (ulong)EdkDll.IEE_MentalCommandAction_t.MC_LEFT;
-                    ulong action2 = (ulong)EdkDll.IEE_MentalCommandAction_t.MC_RIGHT;
-                    ulong listAction = action1 | action2;
-                    EmoEngine.Instance.MentalCommandSetActiveActions((uint)userID, listAction);					
-                    Console.WriteLine("Setting MentalCommand active actions for user");
-                    break;
-                case ConsoleKey.F2:
-                    EmoEngine.Instance.MentalCommandSetTrainingAction((uint)userID, EdkDll.IEE_MentalCommandAction_t.MC_NEUTRAL);
-                    EmoEngine.Instance.MentalCommandSetTrainingControl((uint)userID, EdkDll.IEE_MentalCommandTrainingControl_t.MC_START);
-                    break;
-                case ConsoleKey.F3:
-                    EmoEngine.Instance.MentalCommandSetTrainingAction((uint)userID, EdkDll.IEE_MentalCommandAction_t.MC_RIGHT);
-                    EmoEngine.Instance.MentalCommandSetTrainingControl((uint)userID, EdkDll.IEE_MentalCommandTrainingControl_t.MC_START);
-                    break;
-                case ConsoleKey.F4:
-                    EmoEngine.Instance.MentalCommandSetTrainingAction((uint)userID, EdkDll.IEE_MentalCommandAction_t.MC_LEFT);
-                    EmoEngine.Instance.MentalCommandSetTrainingControl((uint)userID, EdkDll.IEE_MentalCommandTrainingControl_t.MC_START);
-                    break;
-                case ConsoleKey.F5:
-                    EmoEngine.Instance.MentalCommandSetActivationLevel((uint)userID, 2);
-                    Console.WriteLine("MentalCommand Activation level set to {0}", EmoEngine.Instance.MentalCommandGetActivationLevel((uint)userID));
-                    break;
-                case ConsoleKey.F6:
-                    Console.WriteLine("MentalCommand Activation level is {0}", EmoEngine.Instance.MentalCommandGetActivationLevel((uint)userID));
-                    break;
-                case ConsoleKey.F7:
-                    Console.WriteLine("Get the current overall skill rating: {0}", EmoEngine.Instance.MentalCommandGetOverallSkillRating((uint)userID));
-                    break;
-                case ConsoleKey.F8:
-                    EmoEngine.Instance.FacialExpressionSetTrainingAction((uint)userID, EdkDll.IEE_FacialExpressionAlgo_t.FE_CLENCH);
-                    EmoEngine.Instance.FacialExpressionSetTrainingControl((uint)userID, EdkDll.IEE_FacialExpressionTrainingControl_t.FE_START);
-                    break;
-                case ConsoleKey.F9:                    
-                    String version;
-                    UInt32 buildNum;
-                    EmoEngine.Instance.SoftwareGetVersion(out version, out buildNum);
-                    Console.WriteLine("Software Version: {0}, {1}", version, buildNum);
-                    break;
-                case ConsoleKey.F10:
-                    enableLoger = !enableLoger;
-                    break;
-
-                default:
-                    break;
-            }
         }
 
         static void Main(string[] args)
@@ -275,61 +145,32 @@ namespace EmoStateLogger
             engine.EmoStateUpdated +=
                 new EmoEngine.EmoStateUpdatedEventHandler(engine_EmoStateUpdated);
             engine.FacialExpressionEmoStateUpdated +=
-                new EmoEngine.FacialExpressionEmoStateUpdatedEventHandler(engine_FacialExpressionEmoStateUpdated);
-            engine.MentalCommandEmoStateUpdated +=
-                new EmoEngine.MentalCommandEmoStateUpdatedEventHandler(engine_MentalCommandEmoStateUpdated);            
+                new EmoEngine.FacialExpressionEmoStateUpdatedEventHandler(engine_FacialExpressionEmoStateUpdated);        
             engine.EmoEngineEmoStateUpdated +=
                 new EmoEngine.EmoEngineEmoStateUpdatedEventHandler(engine_EmoEngineEmoStateUpdated);
-            engine.MentalCommandTrainingStarted +=
-                new EmoEngine.MentalCommandTrainingStartedEventEventHandler(engine_MentalCommandTrainingStarted);
-            engine.MentalCommandTrainingSucceeded +=
-                new EmoEngine.MentalCommandTrainingSucceededEventHandler(engine_MentalCommandTrainingSucceeded);
-            engine.MentalCommandTrainingCompleted +=
-                new EmoEngine.MentalCommandTrainingCompletedEventHandler(engine_MentalCommandTrainingCompleted);
-            engine.MentalCommandTrainingRejected +=
-                new EmoEngine.MentalCommandTrainingRejectedEventHandler(engine_MentalCommandTrainingRejected);
-            engine.FacialExpressionTrainingStarted +=
-                new EmoEngine.FacialExpressionTrainingStartedEventEventHandler(engine_FacialExpressionTrainingStarted);
-            engine.FacialExpressionTrainingSucceeded +=
-                new EmoEngine.FacialExpressionTrainingSucceededEventHandler(engine_FacialExpressionTrainingSucceeded);
-            engine.FacialExpressionTrainingCompleted +=
-                new EmoEngine.FacialExpressionTrainingCompletedEventHandler(engine_FacialExpressionTrainingCompleted);
-            engine.FacialExpressionTrainingRejected +=
-                new EmoEngine.FacialExpressionTrainingRejectedEventHandler(engine_FacialExpressionTrainingRejected);
+
+
+            //write header
+            string headerEngine = "Time, HeadSetOn, Wireless Strength, Battery Level, Max Batery Level";
+            engineLog.WriteLine(headerEngine);
+            engineLog.WriteLine("");
+
+            //header facial expression
+            string headerExp = "Time, isBlink, isLeftWink, isRightWink, isEyesOpen, isLookingUp, isLookingDown, leftEye, rightEye, x, y, eyebrowExtent, smileExtent, upperFaceAction, upperFacePower, lowerFaceAction, lowerFacePower";
+            expLog.WriteLine(headerExp);
+            expLog.WriteLine("");
+
 
             engine.Connect();
 
             Console.WriteLine("===========================================================================");
             Console.WriteLine("Example to show how to log the EmoState from EmoEngine.");
-            Console.WriteLine("Please use hotkeys for training.");
-            Console.WriteLine("F1: MetalCommand: Set Active Action - LEFT and RIGHT");
-            Console.WriteLine("F2: MetalCommand: Training Action   - NEUTRAL");
-            Console.WriteLine("F3: MetalCommand: Training Action   - RIGHT");
-            Console.WriteLine("F4: MetalCommand: Training Action   - LEFT");
-            Console.WriteLine("F5: MetalCommand: Set Active Level  - 2");
-            Console.WriteLine("F6: MetalCommand: Get Active Level");
-            Console.WriteLine("F7: MetalCommand: Get OverSkills Rating");
-            Console.WriteLine("F8: FacialExpression:Training Action- CLENCH");
-            Console.WriteLine("F9: Get Software version");
-            Console.WriteLine("F10:Enable Logger");
-            Console.WriteLine("===========================================================================");
-
-            ConsoleKeyInfo cki = new ConsoleKeyInfo();
+          
 
             while (true)
             {
                 try
                 {
-                    if (Console.KeyAvailable)
-                    {
-                        cki = Console.ReadKey(true);
-                        keyHandler(cki.Key);
-
-                        if (cki.Key == ConsoleKey.X)
-                        {
-                            break;
-                        }
-                    }
                     engine.ProcessEvents(5);
                 }
                 catch (EmoEngineException e)
