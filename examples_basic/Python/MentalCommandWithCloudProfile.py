@@ -96,37 +96,36 @@ running = 0
 #------------------------------------------------------------------------------------------------------------------------------------------------------------
  
 def handleMentalCommandEvent(cognitiveEvent):
-    userID = 0
     eventType = 0
     libEDK.IEE_EmoEngineEventGetUserId(cognitiveEvent, user)
     eventType = libEDK.IEE_MentalCommandEventGetType(cognitiveEvent)
 
     if eventType == 1: #IEE_MentalCommandTrainingStarted
-        print "Mental Command Training for User", userID," STARTED!"
+        print "Mental Command Training for User", userID.value," STARTED!"
  
     elif eventType == 2: #IEE_MentalCommandTrainingSucceeded
-        print "Mental Command Training for User", userID,"SUCCEEDED! Type \"training_accept\" or \"training_reject\""
+        print "Mental Command Training for User", userID.value,"SUCCEEDED! Type \"training_accept\" or \"training_reject\""
  
     elif eventType == 3: #IEE_MentalCommandTrainingFailed
-        print "Mental Command Training for User", userID," FAILED!"
+        print "Mental Command Training for User", userID.value," FAILED!"
  
     elif eventType == 4: #IEE_MentalCommandTrainingCompleted
-        print "Mental Command Training for User", userID," COMPLETED!"
+        print "Mental Command Training for User", userID.value," COMPLETED!"
  
     elif eventType == 5: #IEE_MentalCommandTrainingDataErased
-        print "Mental Command Training Data for User", userID," ERASED!"
+        print "Mental Command Training Data for User", userID.value," ERASED!"
  
     elif eventType == 6: #IEE_MentalCommandTrainingRejected
-        print "Mental Command Training for User", userID," REJECTED!"
+        print "Mental Command Training for User", userID.value," REJECTED!"
  
     elif eventType == 7: #IEE_MentalCommandTrainingReset
-        print "Mental Command Training for User", userID," RESET!"
+        print "Mental Command Training for User", userID.value," RESET!"
  
     elif eventType == 8: #IEE_MentalCommandTrainingAutoSamplingNeutralCompleted
-        print "Mental Command Auto Sampling Neutral for User",userID," COMPLETED!"
+        print "Mental Command Auto Sampling Neutral for User",userID.value," COMPLETED!"
  
     elif eventType == 9: #IEE_MentalCommandSignatureUpdated
-        print "Mental Command Signature for User", userID," UPDATED!"
+        print "Mental Command Signature for User", userID.value," UPDATED!"
  
     elif eventType== 0: #IEE_MentalCommandNoEvent
         print "No Mental Command Event"   
@@ -135,7 +134,7 @@ def handleMentalCommandEvent(cognitiveEvent):
     #return eventType
  
      
-def parsecommand(inputs):    
+def parsecommand(inputs):
     global profileID
     result = 1
     wrongargument = False
@@ -164,6 +163,7 @@ def parsecommand(inputs):
     elif commands[0] == "quit":
         print "BYE!"
         wrongargument = False
+        exit()
  
     elif commands[0] == "help":
         print "Following step for training..."
@@ -181,28 +181,26 @@ def parsecommand(inputs):
 
         if profileID.value >= 0:
             print "Profile with %s is existed" % profileName
-            if libEDK.EC_UpdateUserProfile(userCloudID.value, userEngineID.value, profileID.value, profileName) == 0:
+            if libEDK.EC_UpdateUserProfile(userCloudID.value, userID, profileID.value, profileName) == 0:
                 print "Updating finished"      
             else:
                 print "Updating failed"
-                if libEDK.EC_SaveUserProfile(userCloudID.value, userEngineID.value, profileName, 0) == 0:  # 0: libEDK.profileType.TRAINING
+                if libEDK.EC_SaveUserProfile(userCloudID.value, userID, profileName, 0) == 0:  # 0: libEDK.profileType.TRAINING
                     print "Saving finished"
                 else:
                     print "Saving failed"
-			
-        exit()
                 
     elif commands[0] == "load_profile":
     
         getNumberProfile = libEDK.EC_GetAllProfileName(userCloudID.value)
-		
+        print "userCloudID %d" % userCloudID.value
         if getNumberProfile > 0:
             profileID = libEDK.EC_ProfileIDAtIndex(userCloudID.value, 0)
-            if libEDK.EC_LoadUserProfile(userCloudID.value, userEngineID.value, profileID, version) == 0:
+            print "profileID %d" % profileID
+            if libEDK.EC_LoadUserProfile(userCloudID.value, userID, profileID, version) == 0:
                 print "Loading finished"
             else:
                 print "Loading failed"
-                exit()
 
     elif commands[0] == "set_actions":
         if (libEDK.IEE_MentalCommandSetActiveActions(userID, 0x0002 | 0x0004)== 0): #pull = 0x0004
@@ -288,7 +286,7 @@ def parsecommand(inputs):
             #    print "Training Erase Failed"
         else:
             wrongargument = True
-			
+            
     elif commands[0] == "running":  
         global running      
         running = 1	
@@ -344,8 +342,6 @@ password    = "Your password"
 profileName = "EmotivProfile"
 version     = -1    # Lastest version
 
-userEngineID  = c_uint(0)
-userEngineIDP = pointer(userEngineID)
 userCloudID   = c_uint(0)
 userCloudIDP  = pointer(userCloudID)
 
