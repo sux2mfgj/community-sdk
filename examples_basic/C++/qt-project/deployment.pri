@@ -194,9 +194,6 @@ export (QMAKE_EXTRA_TARGETS)
 
 }
 
-
-
-
 #LIBS += -L$${EXAMPLES_ROOT}/bin -L$${EXAMPLES_ROOT}/lib
 
 CONFIG(release, debug|release) {
@@ -231,6 +228,17 @@ win32 {
     LIBS += -F/Library/Frameworks -framework edk
     QMAKE_CXXFLAGS +=-stdlib=libc++
     QMAKE_LFLAGS   +=-stdlib=libc++
+}else:android{
+
+    LIBS+=-L$${EXAMPLES_ROOT}/bin/android
+    LIBS += -ledk
+
+    QMAKE_CFLAGS   +=-g
+    QMAKE_CXXFLAGS +=-g
+    QMAKE_LFLAGS   +=-g
+
+    QMAKE_CXXFLAGS +=-std=c++1y
+    QMAKE_LFLAGS   +=-std=c++1y
 }else:unix{
     contains(QT_ARCH,arm){
         ARCH_EXT="arm"
@@ -240,10 +248,10 @@ win32 {
         ARCH_EXT="32"
         LIBS+=-L$${EXAMPLES_ROOT}/bin/linux32
     }
-    contains(QT_ARCH,x86_64) {
+    contains(QT_ARCH,x86_64) {        
         ARCH_EXT="64"        
         LIBS+=-L$${EXAMPLES_ROOT}/bin/linux64
-        LIBS+= -L/home/emotiv/working/win/build/bin/3.3.1/linux64 # Development PC
+        LIBS+=-lncurses
     }
     LIBS += -ledk
     DESTDIR=/tmp/emotiv/build/bin/linux
@@ -255,3 +263,4 @@ win32 {
     QMAKE_CXXFLAGS +=-std=c++1y
     QMAKE_LFLAGS   +=-std=c++1y
 }
+message("USING LIBS $${LIBS}")

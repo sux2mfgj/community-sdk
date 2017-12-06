@@ -4,48 +4,29 @@ SDK CHANGELOGS
 
 #### Version 3.5.0
 * New features and improvement:
-  * SES-689: changed error code EDK_PROFILE_CLOUD_EXISTED to EDK_CLOUD_PROFILE_EXISTS
-  * Removed EDK_OVER_QUOTA_IN_DAY and EDK_OVER_QUOTA_IN_MONTH error code.
-  * SES-716: New licensing model
-    * New API list in EmotivLicense class .             
-    * For Basic, Advanced license: Performance Metric updated each 10 seconds (SES-699)
-    * For Advanced license: start counting session at the first call IEE_DataUpdateHandle()
-       Stop counting session at call IEE_EngineDisconnect();
-    * For Prime license: allows full rate of Performance Metric.
-        Start counting session at the first call IEE_DataUpdateHandle()
-        or any APIs in IEmoStatePerformanceMetric class.
-        Stop counting session at call IEE_EngineDisconnect();
-    * New license API list in EmotivLicense.h.
-  * SES-686: Improved Package and interpolation samples.
-  * SES-950: Improved Performance Metric detections with Insight headset.
-  * SES-743: Band power up to 8Hz. 
-  * SES-780: New EDF file stream. 
-  * Changed format of 'userID': old format: userID = 0, 1, 2, 3...
-      new format as follow:
-      unsigned int oldUserID = 0, 1, 2, 3, 4... follow connection index number of a dongle, a BTLE, a file to SDK library.
-      case InputStreamType_t::DONGLE_STREAM:
-        newUserID = 0x1000 + oldUserID ;
-      case InputStreamType_t::BTLE_STREAM:
-        newUserID = 0x2000 + oldUserID ;
-      case InputStreamType_t::EDF_STREAM:
-        newUserID = 0x3000 + oldUserID ;
-      case InputStreamType_t::CSV_STREAM:
-        newUserID = 0x4000 + oldUserID ;
-      case InputStreamType_t::MEM_STREAM:
-        newUserID = 0x5000 + oldUserID ;        
-      case  InputStreamType_t::CABLE, EXTENDER:
-        newUserID = 0x6000 + oldUserID ;
-  * Improved timestamp and marker. New API: IEE_DataEnableBufferForMarker
-     Enable EEG/Motion buffer, that allows user set marker with system time.
-  * New version of EDF file version : 20170703. add timeStamp started in header file.
-  * SES-934: Fixed EdfHeaderConverter Tool work with new EDF version (20170703)
-     Please pickup from link: https://github.com/Emotiv/community-sdk/tree/master/tools/EEGLAB_EDF_FIXED
-  * SES-979: Fixed rounding error in timestamp_ms column.
-  * SES-911: Improved ES timestamp follow EEG timestamp.
-  * SES-848: Emotiv Tool version 3.5
-  * SES-938: Composer version 3.5
-  * SES-1002: Update EmoKey version 3.5
-
+    * Renamed error code `EDK_PROFILE_CLOUD_EXISTED` to `EDK_CLOUD_PROFILE_EXISTS`
+    * Removed `EDK_OVER_QUOTA_IN_DAY` and `EDK_OVER_QUOTA_IN_MONTH` error codes
+    * Improved samples interpolation during packet lost
+    * Improved noise handling in Performance Metric detections with Insight headset
+    * Updated results of `IEE_GetAverageBandPowers()` from 2Hz to 8Hz
+    * Improved accuracy of timestamp in EEG / EmoState data streams
+    * New API: `IEE_DataEnableBufferForMarker()` which enables EEG/Motion buffer and allows user to set marker with a specific timestamp
+    * Fixed EdfHeaderConverter tool to work with new EDF version (20170703)
+      https://github.com/Emotiv/community-sdk/tree/master/tools/EEGLAB_EDF_FIXED
+    * Data stream type now included in `userID` as a bit mask:
+    ```
+      DONGLE_STREAM_MASK   = 0x1000;
+      BTLE_STREAM_MASK     = 0x2000;
+      EDF_STREAM_MASK      = 0x3000;
+      CSV_STREAM_MASK      = 0x4000;
+      MEM_STREAM_MASK      = 0x5000;       
+      EXTENDER_STREAM_MASK = 0x6000;
+     ```
+    * Support new licensing model - for details https://www.emotiv.com/developer/
+* Platforms: 
+    * SDK v3.5.0 support Windows, MAC OS
+    * Linux, Android, IOS: still use SDK version 3.3.3
+    
 #### Version 3.4.0
 * Bug fixes:
     * Fixed bug: cannot login with special symbol in EmotivID or password

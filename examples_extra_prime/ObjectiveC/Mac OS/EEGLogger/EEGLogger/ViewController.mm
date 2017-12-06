@@ -16,27 +16,8 @@
 
 #include <string>
 #include <iostream>
-#include <iomanip>
-#include <ctime>
-#include <chrono>
-#include <sstream>
 #include <fstream>
-#include <map>
-#define secondsepoch(x) (std::chrono::duration_cast<std::chrono::seconds>(x.time_since_epoch()).count())
-#define secondsdiff(x,y)(std::chrono::duration_cast<std::chrono::seconds>(x - y).count())
 
-#if !(defined __linux__ || defined __APPLE__)
-inline char* strptime(const char* s, const char* f, struct tm* tm)
-{
-    std::istringstream input(s);
-    input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
-    input >> std::get_time(tm, f);
-    if (input.fail()) {
-        return nullptr;
-    }
-    return (char*)(s + input.tellg());
-}
-#endif
 /*****************************************************/
 
 /*If headset Insight only 5 channel AF3, AF4, T7, T8, Pz = O1 have value. 
@@ -60,7 +41,6 @@ EmoEngineEventHandle eEvent;
 EmoStateHandle eState;
 DataHandle hData;
 
-unsigned int userID					= 0;
 float secs							= 1;
 bool readytocollect					= false;
 int state                           = 0;
@@ -70,74 +50,16 @@ std::ofstream ofs;
 /**
  * Set your license 
  */
-std::string license = "Put-your-license-here";
-
-std::string convertEpochToTime(time_t epochTime)
-{
-    char timestamp[64] = { 0 };
-    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", localtime(&epochTime));
-    return timestamp;
-}
-
-void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
-{
-    std::cout << std::endl;
-    std::cout << "Date From  : " << convertEpochToTime(licenseInfos.date_from) << std::endl;
-    std::cout << "Date To    : " << convertEpochToTime(licenseInfos.date_to) << std::endl;
-    std::cout << std::endl;
-    
-    std::cout << "Seat number: " << licenseInfos.seat_count << std::endl;
-    std::cout << std::endl;
-    
-    std::cout << "Total Quota: " << licenseInfos.quota << std::endl;
-    std::cout << "Total quota used    : " << licenseInfos.usedQuota << std::endl;
-    std::cout << std::endl;
-    
-    std::cout << "Quota limit in day  : " << licenseInfos.quotaDayLimit << std::endl;
-    std::cout << "Quota used in day   : " << licenseInfos.usedQuotaDay << std::endl;
-    std::cout << std::endl;
-    
-    std::cout << "Quota limit in month: " << licenseInfos.quotaMonthLimit << std::endl;
-    std::cout << "Quota used in month : " << licenseInfos.usedQuotaMonth << std::endl;
-    std::cout << std::endl;
-    
-    switch (licenseInfos.scopes)
-    {
-        case IEE_EEG:
-            licenseType = IEE_LicenseType_t::IEE_EEG;
-            
-            std::cout << "License type : " << "EEG" << std::endl;
-            std::cout << std::endl;
-            break;
-        case IEE_EEG_PM:
-            licenseType = IEE_LicenseType_t::IEE_EEG_PM;
-            
-            std::cout << "License type : " << "EEG + PM" << std::endl;
-            std::cout << std::endl;
-            break;
-        case IEE_PM:
-            licenseType = IEE_LicenseType_t::IEE_PM;
-            std::cout << "License type : " << "PM" << std::endl;
-            std::cout << std::endl;
-            break;
-        default:
-            std::cout << "License type : " << "No type" << std::endl;
-            std::cout << std::endl;
-            break;
-    }
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    [NSThread detachNewThreadSelector:@selector(startTheBackgroundJob) toTarget:self withObject:nil];
     
     eEvent	= IEE_EmoEngineEventCreate();
     eState	= IEE_EmoStateCreate();
     hData   = IEE_DataCreate();
     
     IEE_EmoInitDevice();
-    
+    IEE_EngineConnect();
     std::string fileName = "EEGDataLogger.csv";
     ofs.open(fileName,std::ios::trunc);
     ofs << header << std::endl;
@@ -155,7 +77,6 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
     
         if (state == EDK_OK)
         {
-        
             IEE_Event_t eventType = IEE_EmoEngineEventGetType(eEvent);
             IEE_EmoEngineEventGetUserId(eEvent, &userID);
         
@@ -173,32 +94,29 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
                 self.labelStatus.stringValue = @"Disconnected";
                 readytocollect = FALSE;
             }
-            else if (eventType == IEE_EmoStateUpdated)
+            if (readytocollect)
             {
+                IEE_DataUpdateHandle(userID, hData);
             
-            }
-        }
-        if (readytocollect)
-        {
-            IEE_DataUpdateHandle(0, hData);
-        
-            unsigned int nSamplesTaken=0;
-            IEE_DataGetNumberOfSample(hData,&nSamplesTaken);
-        
-            std::cout << " Updated " << nSamplesTaken << "\n";
-            if (nSamplesTaken != 0)
-            {
+                unsigned int nSamplesTaken=0;
+                IEE_DataGetNumberOfSample(hData,&nSamplesTaken);
             
-                std::unique_ptr<double> ddata(new double[nSamplesTaken]);
-                for (int sampleIdx=0 ; sampleIdx<(int)nSamplesTaken ; ++sampleIdx) {
-                    for (int i = 0 ; i<sizeof(targetChannelList)/sizeof(IEE_DataChannel_t) ; i++) {
-                        IEE_DataGet(hData, targetChannelList[i], ddata.get(), nSamplesTaken);
-                        ofs << ddata.get()[sampleIdx] << ",";
+                std::cout << " Updated " << nSamplesTaken << "\n";
+                if (nSamplesTaken != 0)
+                {
+                
+                    std::unique_ptr<double> ddata(new double[nSamplesTaken]);
+                    for (int sampleIdx=0 ; sampleIdx<(int)nSamplesTaken ; ++sampleIdx) {
+                        for (int i = 0 ; i<sizeof(targetChannelList)/sizeof(IEE_DataChannel_t) ; i++) {
+                            IEE_DataGet(hData, targetChannelList[i], ddata.get(), nSamplesTaken);
+                            ofs << ddata.get()[sampleIdx] << ",";
+                        }
+                        ofs << std::endl;
                     }
-                    ofs << std::endl;
                 }
             }
         }
+        
     }
 }
 
@@ -206,10 +124,6 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
     [super setRepresentedObject:representedObject];
 
     // Update the view, if already loaded.
-}
-
-- (void)startTheBackgroundJob {
-    [self performSelectorInBackground:@selector(CallFunc) withObject:nil];
 }
 
 -(void)ConnectDevice{
@@ -230,58 +144,6 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
     /************************************************/
     else isConnected = NO;
 
-}
-
--(void)CallFunc{
-    /**
-     * Call this fucntion first time run app
-     * from second time, no need call it
-     * If you have many license on your computer.Call this function to active license you want to use
-     */
-    int result ;
-    result = IEE_ActivateLicense(license.c_str());
-    if(result == EDK_OK || result == EDK_LICENSE_REGISTERED)
-        NSLog(@"Active license success");
-    else
-        NSLog(@"License error code: %x",result);
-    /*********************************************************/
-    if( IEE_EngineConnect() != EDK_OK ) {
-        self.labelStatus.stringValue = @"Can't connect engine";
-    }
-
-    IEE_LicenseInfos_t licenseInfos;
-    memset(&licenseInfos, 0, sizeof(IEE_LicenseInfos_t));
-    result = IEE_LicenseInformation(&licenseInfos);
-    switch (result)
-    {
-        case EDK_OVER_QUOTA_IN_DAY:
-            NSLog(@"Over quota in day");
-            break;
-        case EDK_OVER_QUOTA_IN_MONTH:
-            NSLog(@"Over quota in month");
-            break;
-        case EDK_LICENSE_EXPIRED:
-            NSLog(@"License is expired");
-            break;
-        case EDK_OVER_QUOTA:
-            NSLog(@"Over quota ");
-            break;
-        case EDK_ACCESS_DENIED:
-            NSLog(@"Access denied");
-            break;
-        case EDK_LICENSE_ERROR:
-            NSLog(@"Licens error");
-            break;
-        case EDK_NO_ACTIVE_LICENSE:
-            NSLog(@"Haven't been active license");
-            break;
-        case EDK_OK:
-            NSLog(@"License is ok");
-            break;
-        default:
-            break;
-    }
-    printLicenseInformation(licenseInfos);
 }
 
 @end

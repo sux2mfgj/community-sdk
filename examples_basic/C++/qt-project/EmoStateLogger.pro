@@ -16,7 +16,3 @@ PROJECT_DIR = $${PWD}/../EmoStateLogger
 SOURCES += $${PROJECT_DIR}/main.cpp
 
 OTHER_FILES+=$${PROJECT_DIR}/CMakeLists.txt
-
-message ("LIB $${LIBS}")
-message ("DESTDIR $${DESTDIR}")
-message ("QT_ARCH $${QT_ARCH}")
