@@ -83,7 +83,7 @@ Table below describes examples in detail :
 | EEGLogger  | No | C++, C#, Objective-C, Java, Python, Matlab | Win, Mac, Android |
 | MultiDongleEEGLogger  | No | C++ | Win, Mac |
 | MultilChannelEEGLogger  | No | C++ | Win, Mac |
-| PerformanceMetricsDemo  | Yes | C++, C#, Matlab | Win, Mac |
+| PerformanceMetricsDemo  | Yes | C++, C#, Python, Matlab | Win, Mac |
 | EmotionalState  | No | Objective-C | iOS, Mac |
 
 Doesn't support Python 64bit. 
