@@ -2,6 +2,23 @@
 
 SDK CHANGELOGS
 
+#### Version 3.5.1
+* New features and improvement:
+    * Support Android for SDK 3.5.1 and introduce some android examples
+    * Update new license model for sdk 3.5.1. Removed dayly and monthly debit limit.
+	  support annual license
+    * Update EmotivTools for version 3.5.1 both Windows and MAC        
+    * Update emostatelogger examples for Csharp and Java
+    * Introduce EdfHeaderConverter tool for mac
+    
+* Bug fixes:
+    * Fixed error "Expried license" after renew license key
+    * Fixed issue of MentalCommandWithCloudProfile - python example
+	
+* Platforms:
+    * SDK v3.5.1 support Windows, MAC OS, Android
+    * Linux, IOS: still use SDK version 3.3.3
+
 #### Version 3.5.0
 * New features and improvement:
     * Renamed error code `EDK_PROFILE_CLOUD_EXISTED` to `EDK_CLOUD_PROFILE_EXISTS`
