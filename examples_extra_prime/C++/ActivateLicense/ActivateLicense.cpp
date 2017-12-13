@@ -1,14 +1,14 @@
 /****************************************************************************
 **
-** Copyright 2016 by Emotiv. All rights reserved
+** Copyright 2017 by Emotiv. All rights reserved
 ** Example - ActivateLicense
-** How to activate a license key and Get infomation of that license 
+** How to activate a license key and Get infomation of that license
 **
 ****************************************************************************/
 
 #ifdef _WIN32
-    #include <windows.h>
-    #include <conio.h>
+#include <windows.h>
+#include <conio.h>
 #endif
 
 #if __linux__ || __APPLE__
@@ -58,17 +58,18 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
     std::cout << "To   Date         : " << convertEpochToTime(licenseInfos.date_to) << std::endl;
     std::cout << std::endl;
 
-    std::cout << std::endl;
-    std::cout << "Soft Limit Date   : " << convertEpochToTime(licenseInfos.soft_limit_date) << std::endl;
-    std::cout << "Hard Limit Date   : " << convertEpochToTime(licenseInfos.hard_limit_date) << std::endl;
-    std::cout << std::endl;
-
     std::cout << "Number of Seats   : " << licenseInfos.seat_count << std::endl;
     std::cout << std::endl;
 
-    std::cout << "Total Quota       : " << licenseInfos.quota << std::endl;
-    std::cout << "Total used Quota  : " << licenseInfos.usedQuota << std::endl;
+    std::cout << "Total Quotas      : " << licenseInfos.quota << std::endl;
+    std::cout << "Total used Quotas : " << licenseInfos.usedQuota << std::endl;
     std::cout << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Grace period from " << convertEpochToTime(licenseInfos.soft_limit_date) << "   To " << convertEpochToTime(licenseInfos.hard_limit_date) << std::endl;
+    std::cout << std::endl;
+
+    
 
     switch (licenseInfos.scopes)
     {
@@ -97,7 +98,7 @@ void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
 }
 
 std::string const LICENSE_KEY = "";
-                                 
+
 
 int main(int argc, char** argv)
 {
@@ -128,19 +129,31 @@ int main(int argc, char** argv)
     IEE_DebitInfos_t debitInfos;
     debitInfos.remainingSessions = 0;
     result = IEE_GetDebitInformation(LICENSE_KEY.c_str(), &debitInfos);
+    if (result == EDK_OK)
+    {
 
-    std::cout << std::endl;
-    std::cout << "Remaining Sessions     : " << debitInfos.remainingSessions << std::endl;
-    std::cout << "Daily debit limitation : " << debitInfos.daily_debit_limit << std::endl;
-    std::cout << std::endl;
+        if (debitInfos.total_session_inYear > 0)
+        {
+            std::cout << "Remaining Sessions in year : " << debitInfos.remainingSessions << std::endl;
+            std::cout << "the total number of session can be debitable in year : " << debitInfos.total_session_inYear << std::endl;
 
-    std::cout << std::endl;
-    std::cout << "Total debit today      : " << debitInfos.total_debit_today << std::endl;
-    std::cout << "Remaining time before resetting daily debit limitation: " << debitInfos.time_reset << "(seconds)" << std::endl;
-    std::cout << std::endl;
+        }
+        else if (debitInfos.total_session_inMonth > 0)
+        {
+            std::cout << "Remaining Sessions in month : " << debitInfos.remainingSessions << std::endl;
+            std::cout << "the total number of session can be debitable in month : " << debitInfos.total_session_inMonth << std::endl;
+        }
+        else {
+            std::cout << "Remaining Sessions:unlimitted " << std::endl;
+            std::cout << "It is unlimitted license" << std::endl;
+        }
 
+    }
+    else
+    {
+        std::cout << std::hex << "GET DEBIT INFORMATION UNSUCCESSFULLY! errorcode: " << intToHex(result) << std::endl;
+    }
 
-    //Active license with debit
     unsigned int debitNum = 0; //default value
 
     //Get number of debit as input
@@ -170,9 +183,6 @@ int main(int argc, char** argv)
         break;
     case EDK_OVER_DEVICE_LIST:
         std::cout << "Over device list" << std::endl;
-        break;  
-    case EDK_DAILY_DEBIT_LIMITED:
-        std::cout << "Over daily number of debits" << std::endl;
         break;
     case EDK_ACCESS_DENIED:
         std::cout << "Access denied" << std::endl;
@@ -193,8 +203,12 @@ int main(int argc, char** argv)
     }
 
     if (!(result == EDK_OK || result == EDK_LICENSE_REGISTERED))
+    {
+        std::cout << std::hex << "ACTIVE/DEBIT UNSUCCESSFULLY!" << std::endl;
         return result;
-    
+    }
+
+
     IEE_LicenseInfos_t licenseInfos;
 
     // We can call this API any time to check current License information

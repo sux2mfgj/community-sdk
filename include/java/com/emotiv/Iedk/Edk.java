@@ -253,22 +253,19 @@ public interface Edk extends Library {
 		}
 	}
 	
-public static class DebitInfos_t extends Structure {
-		
-		public static class ByReference extends DebitInfos_t implements Structure.ByReference {}
-		
-		public int remainingSessions; 	// remaining session number of the license
-        public int daily_debit_limit; 	// the max of session debit number per day
-        public int total_debit_today; 	// the number of session debited today
-        public int time_reset;   		// time to reset daily debit (seconds)
+    public static class DebitInfos_t extends Structure {
+        public static class ByReference extends DebitInfos_t implements Structure.ByReference {}
+        public int remainingSessions;       // remaining session number of the license
+        public int total_session_inMonth;   // the total number of session can be debitable in month, -1: yearly license.
+        public int total_session_inYear;    // the total number of session can be debitable in year, -1: monthly license.
         
-		//@Override
-		@Override
-		protected List<String> getFieldOrder() {
-			// TODO Auto-generated method stub
-			return Arrays.asList(new String[] { "remainingSessions", "daily_debit_limit", "total_debit_today", "time_reset"});
-		}
-	}
+        //@Override
+        @Override
+        protected List<String> getFieldOrder() {
+            // TODO Auto-generated method stub
+            return Arrays.asList(new String[] { "remainingSessions", "total_session_inMonth", "total_session_inYear"});
+        }
+    }
 	
 	
 	//! Check infos of the debit

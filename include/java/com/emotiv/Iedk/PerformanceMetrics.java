@@ -6,12 +6,12 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
 
 public interface PerformanceMetrics extends Library {
-	PerformanceMetrics INSTANCE = (PerformanceMetrics) Native.loadLibrary("edk", PerformanceMetrics.class);
+    PerformanceMetrics INSTANCE = (PerformanceMetrics) Native.loadLibrary("edk", PerformanceMetrics.class);
 
-	//! PerformanceMetric emotional type enumerator
+    //! PerformanceMetric emotional type enumerator
     /**
-	 * PerformanceMetric type enumerator
-	 */
+     * PerformanceMetric type enumerator
+     */
      
     public enum IEE_PerformanceMetricAlgo_t {
         PM_EXCITEMENT(0x0001),
@@ -24,12 +24,12 @@ public interface PerformanceMetrics extends Library {
         private int bit;
 
         IEE_PerformanceMetricAlgo_t(int bitNumber) {
-			bit = bitNumber;
-		}
+            bit = bitNumber;
+        }
 
-		public int ToInt() {
-			return (bit);
-		}
+        public int ToInt() {
+            return (bit);
+        }
     } 
 
     // ! Returns the long term excitement level of the user
@@ -44,7 +44,7 @@ public interface PerformanceMetrics extends Library {
 
 
     // ! Returns short term excitement level of the user
-	/*
+    /*
      * \param state - EmoStateHandle
      * 
      * \return excitement level (0.0 to 1.0)
@@ -123,9 +123,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetInstantaneousExcitementModelParams(Pointer state,
-	                                                                FloatByReference rawScore,
-																	FloatByReference minScale,
-																	FloatByReference maxScale);
+                                                                     DoubleByReference rawScore,
+                                                                     DoubleByReference minScale,
+                                                                     DoubleByReference maxScale);
 
 
     // ! Returns Relaxation model parameters
@@ -135,9 +135,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetRelaxationModelParams(Pointer state,
-	                                                   FloatByReference rawScore,
-													   FloatByReference minScale,
-													   FloatByReference maxScale);
+                                                       DoubleByReference rawScore,
+                                                       DoubleByReference minScale,
+                                                       DoubleByReference maxScale);
 
 
     // ! Returns EngagementBoredom model parameters
@@ -147,9 +147,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetEngagementBoredomModelParams(Pointer state,
-	                                                          FloatByReference rawScore,
-															  FloatByReference minScale,
-															  FloatByReference maxScale);
+                                                              DoubleByReference rawScore,
+                                                              DoubleByReference minScale,
+                                                              DoubleByReference maxScale);
 
 
     // ! Returns Stress model parameters
@@ -159,9 +159,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetStressModelParams(Pointer state,
-	                                               FloatByReference rawScore,
-												   FloatByReference minScale,
-												   FloatByReference maxScale);
+                                                   DoubleByReference rawScore,
+                                                   DoubleByReference minScale,
+                                                   DoubleByReference maxScale);
 
 
     // ! Returns Interest model parameters
@@ -171,9 +171,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetInterestModelParams(Pointer state,
-	                                                 FloatByReference rawScore,
-													 FloatByReference minScale,
-													 FloatByReference maxScale);
+                                                     DoubleByReference rawScore,
+                                                     DoubleByReference minScale,
+                                                     DoubleByReference maxScale);
 
     // ! Returns Focus model parameters
     /*
@@ -182,9 +182,9 @@ public interface PerformanceMetrics extends Library {
      * \param minScale, maxScale   - return scale range
      */
      void IS_PerformanceMetricGetFocusModelParams(Pointer state,
-	                                              FloatByReference rawScore,
-												  FloatByReference minScale,
-												  FloatByReference maxScale);
+                                                  DoubleByReference rawScore,
+                                                  DoubleByReference minScale,
+                                                  DoubleByReference maxScale);
 
 
     // ! Check whether two states are with identical 'emotiv' state

@@ -27,7 +27,9 @@ if (WIN32)
 elseif(APPLE)
     set ( PROJECT_LINK_LIBS "-framework edk" )
 elseif(UNIX)
-    set ( PROJECT_LINK_LIBS libedk.so )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fvisibility=hidden -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -fPIC -fvisibility=hidden -Wall -Wextra")
+    set ( PROJECT_LINK_LIBS edk )
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
        link_directories( ${COMMUNITY_SDK_BIN_DIR}/linux64 )
     elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
@@ -37,8 +39,7 @@ elseif(UNIX)
     endif()
 endif()
 
-message(STATUS "Link with: " ${PROJECT_LINK_LIBS})
-
+add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/EmotivWrapper)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/AverageBandPowers)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/EmoStateLogger)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/FacialExpressionDemo)
@@ -47,10 +48,13 @@ add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/HeadsetInformationLogge
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/MentalCommandDemo)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/MotionDataLogger)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/MultiDongleConnection)
+
+# For SDK 3.5
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/MentalCommandWithCloudProfile)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/MentalCommandWithLocalProfile)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_BASIC_DIR}/SavingAndLoadingProfileCloud)
 
+# Advanced License
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_PRIME_DIR}/ActivateLicense)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_PRIME_DIR}/EEGLogger)
 add_subdirectory(${COMMUNITY_SDK_CXX_EXAMPLES_PRIME_DIR}/MultiDongleEEGLogger)

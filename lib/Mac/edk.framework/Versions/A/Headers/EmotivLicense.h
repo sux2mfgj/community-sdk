@@ -42,11 +42,11 @@ extern "C" {
         IEE_PM  = 0x002,      // Enable Performance Metric detection   
         IEE_EEG_PM = IEE_EEG | IEE_PM   // Enable EEG data and Performance Metric detection   
     } IEE_LicenseType_t;
-    //! License information structure
+
     typedef struct IEE_LicenseInfos_struct {
         unsigned int scopes;            // license type
-        unsigned int date_from;         // License is valid from the date
-        unsigned int date_to;           // License is valid to  the date
+        unsigned int date_from;         // epoch time 
+        unsigned int date_to;           // epoch time
 
         // need authorize the license, then your current quota will be reset to the debit number.
         // if not, you can still use current quota to hard_limit_date. 
@@ -55,19 +55,19 @@ extern "C" {
         // After this date. Your current quota will be reset to 0 and stop using the library.
         unsigned int hard_limit_date;
         unsigned int seat_count;        // number of seat
-        unsigned int usedQuota;         // total number of used session.
-        unsigned int quota;             // total number of session of current actived license.
+        unsigned int usedQuota;         // total number of session used.
+        unsigned int quota;             // total number of session got for this PC.
 
     } IEE_LicenseInfos_t;
-    //! Debit information structure
-    typedef struct IEE_DebitInfos_struct {
-        unsigned int remainingSessions;   // number of remain session of the license.
-        unsigned int daily_debit_limit;   // the maximum session can be debitable per day.
-        unsigned int total_debit_today;   // the number of debited session today.
-        unsigned int time_reset;          // the remain time to reset number of daily limit debit (seconds) to 0. 
+
+    typedef struct IEE_DebitInfos_struct {        
+        unsigned int remainingSessions; // number of remain session of the license in month/year
+        int total_session_inMonth;      // the total number of session can be debitable in month, -1: yearly license.
+        int total_session_inYear;       // the total number of session can be debitable in year, -1: monthly license.
+
     } IEE_DebitInfos_t;
 
-    //! Get Debit information of the license
+    //! Check information of the license
     /*!
         \param remainingSessions -  
         \return EDK_ERROR_CODE
@@ -80,7 +80,7 @@ extern "C" {
                                 IEE_DebitInfos_t * debit_info);
 
 
-    //! Check information of the current license
+    //! Check information of the license
     /*!    
         \param licenseID   - License key
         \param licenseInfo - License Information    

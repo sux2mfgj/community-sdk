@@ -373,10 +373,9 @@ namespace Emotiv
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public class IEE_DebitInfos_t
         {
-            public UInt32 remainingSessions;   // remaining session number of the license.
-            public UInt32 daily_debit_limit;   // the max of session debit number per day. 
-            public UInt32 total_debit_today;   // the number of session debited today.
-            public UInt32 time_reset;          // time to reset daily debit (seconds).
+            public UInt32 remainingSessions;     // number of remain session of the license in month/year
+            public Int32  total_session_inMonth; // the total number of session can be debitable in month, -1: yearly license.
+            public Int32  total_session_inYear;   // the total number of session can be debitable in year, -1: monthly license.
         };
 
 

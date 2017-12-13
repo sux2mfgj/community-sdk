@@ -27,9 +27,8 @@
 
 
 @property (weak) IBOutlet NSTextField *remainingSession;
-@property (weak) IBOutlet NSTextField *dailyDebitLimit;
-@property (weak) IBOutlet NSTextField *dailyQuotaReset;
-@property (weak) IBOutlet NSTextField *todayDebit;
+@property (weak) IBOutlet NSTextField *totalSessions;
+@property (weak) IBOutlet NSTextField *typeLicense;
 
 @property (weak) IBOutlet NSTextField *scope;
 @property (weak) IBOutlet NSTextField *seatCount;

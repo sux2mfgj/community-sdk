@@ -50,13 +50,22 @@ public class ActivateLicense {
         result = Edk.INSTANCE.IEE_GetDebitInformation(license_ID, debitInfos);
         if (result == EdkErrorCode.EDK_OK.ToInt())
         {          
-            System.out.println("Remaining Sessions     : " + (debitInfos.remainingSessions & 0xffffffffL)); //convert from signed int to unsigned long
-            System.out.println("Daily debit limitation : " + debitInfos.daily_debit_limit);
-            System.out.println();
-
-            System.out.println("Total debits today     : " + debitInfos.total_debit_today);
-            System.out.println("Remaining time (seconds) before resetting daily debit limitation: " + debitInfos.time_reset );
-            System.out.println();
+            if(debitInfos.total_session_inYear > 0)
+            {
+            	System.out.println("Remaining Sessions                   : " + (debitInfos.remainingSessions & 0xffffffffL)); //convert from signed int to unsigned long
+            	System.out.println("Total debitable sessions in Year     : " + debitInfos.total_session_inYear);
+            	
+            }
+            else if(debitInfos.total_session_inMonth > 0)
+            {
+            	System.out.println("Remaining Sessions                   : " + (debitInfos.remainingSessions & 0xffffffffL)); //convert from signed int to unsigned long
+            	System.out.println("Total debitable sessions in Month    : " + debitInfos.total_session_inMonth);
+            }
+            else
+            {
+            	System.out.println("Remaining Sessions                   : unlimitted");
+            	System.out.println("Total debitable sessions in Year     : unlimitted");
+            }
         }
         else
         {
@@ -115,9 +124,52 @@ public class ActivateLicense {
         Edk.LicenseInfos_t.ByReference licenseInfos = new Edk.LicenseInfos_t.ByReference();
         
         //Get License Information
-        result = Edk.INSTANCE.IEE_LicenseInformation(licenseInfos);       
+        result = Edk.INSTANCE.IEE_LicenseInformation(licenseInfos);
+        if(result == EdkErrorCode.EDK_OK.ToInt())
+        {
+        	//Convert to Epoc time to Date time UTC
+            String date_from = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.date_from*1000L)); //multiple 1000 because convert to milisecond
+            String date_to = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.date_to*1000L));
+            String soft_limit_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.soft_limit_date*1000L));
+            String hard_limit_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.hard_limit_date*1000L));
 
-        if (result == EdkErrorCode.EDK_LICENSE_EXPIRED.ToInt())
+            System.out.println("From date              : " + date_from );
+            System.out.println();
+            System.out.println("To   date              : " + date_to );
+            System.out.println();
+
+            System.out.println("Number of seats        : " + licenseInfos.seat_count );
+            System.out.println();
+
+            System.out.println("Total quotas           : " + licenseInfos.quota );
+            System.out.println("Total used quotas      : " + licenseInfos.usedQuota );
+            System.out.println();
+
+            System.out.println("Grace Period      from : " + soft_limit_date  + " to    " + hard_limit_date);
+            System.out.println();
+
+            if(licenseInfos.scopes == 1)
+            {
+                System.out.println("License type       : " + "EEG" );
+                System.out.println();
+            }
+            else if (licenseInfos.scopes == 2)
+            {
+                 System.out.println("License type      : " + "PM" );
+                    System.out.println();
+            }
+            else if (licenseInfos.scopes == 3)
+            {
+                System.out.println("License type       : " + "EEG + PM" );
+                System.out.println();
+            }
+            else
+            {
+                System.out.println("License type       : " + "No type" );
+                System.out.println();
+            }
+        }
+        else if (result == EdkErrorCode.EDK_LICENSE_EXPIRED.ToInt())
         {
             System.out.println("LicenseInformation: EDK_LICENSE_EXPIRED" );
             System.out.println();
@@ -144,51 +196,9 @@ public class ActivateLicense {
         }
         else
         {
-            System.out.println();
+            System.out.println("Unknown Error");
         }
-        //Convert to Epoc time to Date time UTC
-        String date_from = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.date_from*1000L)); //multiple 1000 because convert to milisecond
-        String date_to = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.date_to*1000L));
-        String soft_limit_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.soft_limit_date*1000L));
-        String hard_limit_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(licenseInfos.hard_limit_date*1000L));
-
-        System.out.println("From date              : " + date_from );
-        System.out.println();
-        System.out.println("To   date              : " + date_to );
-        System.out.println();
-
-        System.out.println("Number of seats        : " + licenseInfos.seat_count );
-        System.out.println();
-
-        System.out.println("Total quotas           : " + licenseInfos.quota );
-        System.out.println("Total used quotas      : " + licenseInfos.usedQuota );
-        System.out.println();
-
-        System.out.println("Soft Limit Date        : " + soft_limit_date );
-        System.out.println("Hard Limit Date        : " + hard_limit_date );
-        System.out.println();
-
-        if(licenseInfos.scopes == 1)
-        {
-            System.out.println("License type       : " + "EEG" );
-            System.out.println();
-        }
-        else if (licenseInfos.scopes == 2)
-        {
-             System.out.println("License type      : " + "PM" );
-                System.out.println();
-        }
-        else if (licenseInfos.scopes == 3)
-        {
-            System.out.println("License type       : " + "EEG + PM" );
-            System.out.println();
-        }
-        else
-        {
-            System.out.println("License type       : " + "No type" );
-            System.out.println();
-        }
-               
+                     
     }
 
 }

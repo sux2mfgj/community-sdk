@@ -1,19 +1,28 @@
-import sys,os
-import time
-import ctypes
-import msvcrt
+import sys
+import os
 from threading import Thread
-  
 from ctypes import *
- 
+
+# REQUIRED
+from utilities import *
+
+# Note:
+# $python: Python 2.7.14 32bit on win32
+# The proper way to call these IEE_ functions is assigning them to an int value then check that returned value
+# E.g.
+# errorCode = libEDK.IEE_EngineConnect("Emotiv Systems-5")
+# if errorCode is EDK_OK, meaning function IEE_EngineConnect was executed successfully, without error
+# if errorCode is another value ( != EDK_OK), check what it means in utilities.py file - ErrorCode enum
+
 try:
     if sys.platform.startswith('win32'):
+        # If Your Python is 32bit version, load edk.dll from win32 folder instead
         libEDK = cdll.LoadLibrary("../../bin/win32/edk.dll")
     elif sys.platform.startswith('linux'):
         srcDir = os.getcwd()
-	if platform.machine().startswith('arm'):
+        if sys.platform.startswith('arm'):
             libPath = srcDir + "/../../bin/armhf/libedk.so"
-	else:
+        else:
             libPath = srcDir + "/../../bin/linux64/libedk.so"
         libEDK = CDLL(libPath)
     else:
@@ -21,49 +30,59 @@ try:
 except Exception as e:
     print 'Error: cannot load EDK lib:', e
     exit()
- 
-write    = sys.stdout.write
-eEvent   = libEDK.IEE_EmoEngineEventCreate()
-eState   = libEDK.IEE_EmoStateCreate()
-userID   = c_uint(0)
-nSamples = c_uint(0)
-nSam     = c_uint(0)
-nSamplesTaken  = pointer(nSamples)
-#da      = zeros(128,double)
-data     = pointer(c_double(0))
-user     = pointer(userID)
-composerPort = c_uint(1726)
-option   = c_int(0)
-state    = c_int(0)
-EmoState = c_int(0)
-mental_state = c_int(0)
-power    = c_float(0.0)
-EngineEventType   = c_int(0)
-ActiveActionsOut  = c_ulong(0)
-pActiveActionsOut = pointer(ActiveActionsOut)
+
+
+##-------------------------------------------------------------------------------##
+##------------- EDIT THESE FIELDS BEFORE CONTINUING ----------------------------###
+userName = "your_username"
+password = "your_username"
+
+profileName = "profileName"
+
+# Training profile was saved with some kind of version control, but no API is exposed
+# Therefor you can only get the latest version of it
+PROFILE_VERSION = -1
+
+# Pre-define MC actions
+# Max is 4 actions
+MCAction1 = MentalCommandActionEnum.MC_PULL
+MCAction2 = MentalCommandActionEnum.MC_PUSH
+MCAction3 = MentalCommandActionEnum.MC_NONE
+MCAction4 = MentalCommandActionEnum.MC_NONE
+# Bitwise operator, use to create ACTIONLIST and verify valid action
+ACTIONLIST = MCAction1 | MCAction2 | MCAction3 | MCAction4 | MentalCommandActionEnum.MC_NEUTRAL
+ACTIONLIST_ARRAY = [MCAction1, MCAction2, MCAction3, MCAction4]
+##----------------------------------------------------------------------------##
+################################################################################
+
+running = False
+
+eEvent = libEDK.IEE_EmoEngineEventCreate()
+eState = libEDK.IEE_EmoStateCreate()
+
+userID    = c_uint(0)
+ptrUserID = pointer(userID)
+
+state           = c_int(0)
+mental_state    = c_int(0)
+power           = c_float(0.0)
+EngineEventType = c_int(0)
+
 ActionOut  = c_long(0)
 pActionOut = pointer(ActionOut)
-TrainingActionOut   = c_int(0)
-pTrainingActionOut  = pointer(TrainingActionOut)
-NeutralSkillRating  = c_float(0)
-pNeutralSkillRating = pointer(NeutralSkillRating)
-PushSkillRating     = c_float(0)
-pPushSkillRating    = pointer(NeutralSkillRating)
-PullSkillRating     = c_float(0)
-pPullSkillRating    = pointer(NeutralSkillRating)
-NumContact          = 0
-chargeLevel         = c_int()
-maxChargeLevel      = c_int()
 
-profileID     = c_int(0)
-profileIDP    = pointer(profileID)
+TrainingActionOut    = c_int(0)
+ptrTrainingActionOut = pointer(TrainingActionOut)
 
-IS_MentalCommandGetCurrentActionPower = libEDK.IS_MentalCommandGetCurrentActionPower
-IS_MentalCommandGetCurrentActionPower.restype = c_float
-IS_MentalCommandGetCurrentActionPower.argtypes = [c_void_p]
- 
-IEE_MentalCommandAction_enum = ["","NEUTRAL","PUSH","","PULL"]
- 
+chargeLevel    = c_int(0)
+ptrChargeLevel = pointer(chargeLevel)
+
+maxChargeLevel    = c_int(0)
+ptrMaxChargeLevel = pointer(maxChargeLevel)
+
+cloudUserID    = c_uint(0)
+ptrCloudUserID = pointer(cloudUserID)
+
 IEE_InputChannels_enum = ["IEE_CHAN_CMS",
                           "IEE_CHAN_DRL",
                           "IEE_CHAN_FP1",
@@ -83,290 +102,231 @@ IEE_InputChannels_enum = ["IEE_CHAN_CMS",
                           "IEE_CHAN_F8",
                           "IEE_CHAN_AF4",
                           "IEE_CHAN_FP2"]
- 
-IEE_EEG_ContactQuality_enum = ["No Signal",
-                              "Very Bad",
-                              "Poor",
-                              "Fair",
-                              "Good"]
- 
-IEE_SignalStrength_enum = ["No Signal","Bad Signal","Good Signal"]
 
-running = 0
+IEE_EEG_ContactQuality_enum = ["No Signal",
+                               "Very Bad",
+                               "Poor",
+                               "Fair",
+                               "Good"]
+
+IEE_SignalStrength_enum = ["No Signal", "Bad Signal", "Good Signal"]
+
 #------------------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
 def handleMentalCommandEvent(cognitiveEvent):
-    eventType = 0
-    libEDK.IEE_EmoEngineEventGetUserId(cognitiveEvent, user)
+    libEDK.IEE_EmoEngineEventGetUserId(cognitiveEvent, ptrUserID)
     eventType = libEDK.IEE_MentalCommandEventGetType(cognitiveEvent)
 
-    if eventType == 1: #IEE_MentalCommandTrainingStarted
-        print "Mental Command Training for User", userID.value," STARTED!"
- 
-    elif eventType == 2: #IEE_MentalCommandTrainingSucceeded
-        print "Mental Command Training for User", userID.value,"SUCCEEDED! Type \"training_accept\" or \"training_reject\""
- 
-    elif eventType == 3: #IEE_MentalCommandTrainingFailed
-        print "Mental Command Training for User", userID.value," FAILED!"
- 
-    elif eventType == 4: #IEE_MentalCommandTrainingCompleted
-        print "Mental Command Training for User", userID.value," COMPLETED!"
- 
-    elif eventType == 5: #IEE_MentalCommandTrainingDataErased
-        print "Mental Command Training Data for User", userID.value," ERASED!"
- 
-    elif eventType == 6: #IEE_MentalCommandTrainingRejected
-        print "Mental Command Training for User", userID.value," REJECTED!"
- 
-    elif eventType == 7: #IEE_MentalCommandTrainingReset
-        print "Mental Command Training for User", userID.value," RESET!"
- 
-    elif eventType == 8: #IEE_MentalCommandTrainingAutoSamplingNeutralCompleted
-        print "Mental Command Auto Sampling Neutral for User",userID.value," COMPLETED!"
- 
-    elif eventType == 9: #IEE_MentalCommandSignatureUpdated
-        print "Mental Command Signature for User", userID.value," UPDATED!"
- 
-    elif eventType== 0: #IEE_MentalCommandNoEvent
-        print "No Mental Command Event"   
-    #time.sleep(.15)
- 
-    #return eventType
- 
-     
+    if eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingStarted:
+        print "Mental Command Training for User", userID.value, " STARTED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingSucceeded:
+        print "Mental Command Training for User", userID.value, "SUCCEEDED! Type \"accept\" or \"reject\""
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingFailed:
+        print "Mental Command Training for User", userID.value, " FAILED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingCompleted:
+        print "Mental Command Training for User", userID.value, " COMPLETED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingDataErased:
+        print "Mental Command Training Data for User", userID.value, " ERASED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingRejected:
+        print "Mental Command Training for User", userID.value, " REJECTED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandTrainingReset:
+        print "Mental Command Training for User", userID.value, " RESET!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandAutoSamplingNeutralCompleted:
+        print "Mental Command Auto Sampling Neutral for User", userID.value, " COMPLETED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandSignatureUpdated:
+        print "Mental Command Signature for User", userID.value, " UPDATED!"
+
+    elif eventType == MentalCommandEventEnum.IEE_MentalCommandNoEvent:
+        print "No Mental Command Event"
+
+
 def parsecommand(inputs):
-    global profileID
-    result = 1
-    wrongargument = False
+    wrongArgument = False
     commands = inputs.split()
- 
+    profileID = c_int(0)
+    ptrProfileID = pointer(profileID)
+
     if commands[0] == "status":
-        libEDK.IS_GetBatteryChargeLevel(eState, pointer(chargeLevel), pointer(maxChargeLevel))
+        libEDK.IS_GetBatteryChargeLevel(eState, ptrChargeLevel, ptrMaxChargeLevel)
         WirelessStrength = libEDK.IS_GetWirelessSignalStatus(eState)
         NumContact = libEDK.IS_GetNumContactQualityChannels(eState)
-        print "Battery Level:", chargeLevel.value,"out of", maxChargeLevel.value
+        print "Battery Level:", chargeLevel.value, "out of", maxChargeLevel.value
         print "Wireless Strength:", IEE_SignalStrength_enum[WirelessStrength]
-        print "Number of Contact:",NumContact
+        print "Number of Contact:", NumContact
         if NumContact != 0:
-            for i in range(0,NumContact):
-                 
+            for i in range(0, NumContact):
                 SignalCondition = libEDK.IS_GetContactQuality(eState, i)
-                print IEE_InputChannels_enum[i],"\t :",IEE_EEG_ContactQuality_enum[SignalCondition]
-                #print i, "\t", SignalCondition
+                print IEE_InputChannels_enum[i], "\t :", IEE_EEG_ContactQuality_enum[SignalCondition]
         else:
-            print "Headset Signal not Avaliable"
-             
+            print "Headset signal not available"
+
     elif commands[0] == "next":
         print "Moving onto Data Acquisition Mode!"
-        wrongargument = False
- 
+        wrongArgument = False
+
     elif commands[0] == "quit":
         print "BYE!"
-        wrongargument = False
-        exit()
- 
+        wrongArgument = False
+
     elif commands[0] == "help":
         print "Following step for training..."
-        print "1. save_profile (create/save profile to Cloud) or load_profile "
-        print "2. set_actions"
-        print "3. training_action [neutral/push/pull]"
-        print "4. training_start"
-        print "5. training_accept or training_reject"
-        print "Optional: training_erase, status, report"
-        wrongargument = False
- 
-    elif commands[0] == "save_profile":
-        getNumberProfile = libEDK.EC_GetAllProfileName(userCloudID.value)
-        libEDK.EC_GetProfileId(userCloudID, profileName, profileIDP)        
+        print "1. save (create/save profile to Cloud) or load "
+        print "2. set"
+        print "Train each action from \"train [action]\" > \"start\" > \"accept/reject\" step-by-step"
+        print "3. train [neutral/push/pull/etc.] - Note: Always train neutral first, only train action \n"
+        print "   that defined in ACTIONLIST"
+        print "4. start" # Start action that just set with train command
+        print "5. accept or reject"
+        print "Optional: erase, status, report, running"
+        wrongArgument = False
+
+    elif commands[0] == "save":
+
+        libEDK.EC_GetProfileId(cloudUserID, profileName, ptrProfileID)
 
         if profileID.value >= 0:
             print "Profile with %s is existed" % profileName
-            if libEDK.EC_UpdateUserProfile(userCloudID.value, userID, profileID.value, profileName) == 0:
-                print "Updating finished"      
+            if libEDK.EC_UpdateUserProfile(cloudUserID.value, userID.value, profileID.value, profileName) == ErrorCodeEnum.EDK_OK:
+                print "Updating finished"
             else:
                 print "Updating failed"
-                if libEDK.EC_SaveUserProfile(userCloudID.value, userID, profileName, 0) == 0:  # 0: libEDK.profileType.TRAINING
+                # Note: profileType = 0 if you are using training-profile
+                #       profileType = 1 if you are using EmoKey
+                # Read the API Reference document (EmotivCloudClient.h) for more information
+                profileType = 0
+                if libEDK.EC_SaveUserProfile(cloudUserID.value, userID.value, profileName, profileType) == ErrorCodeEnum.EDK_OK:
                     print "Saving finished"
                 else:
                     print "Saving failed"
-                
-    elif commands[0] == "load_profile":
-    
-        getNumberProfile = libEDK.EC_GetAllProfileName(userCloudID.value)
-        print "userCloudID %d" % userCloudID.value
+                    exit()
+
+    elif commands[0] == "load":
+        getNumberProfile = libEDK.EC_GetAllProfileName(cloudUserID.value) # required
+        libEDK.EC_ProfileIDAtIndex(cloudUserID, profileName, ptrProfileID)
+
         if getNumberProfile > 0:
-            profileID = libEDK.EC_ProfileIDAtIndex(userCloudID.value, 0)
-            print "profileID %d" % profileID
-            if libEDK.EC_LoadUserProfile(userCloudID.value, userID, profileID, version) == 0:
+            profileID = libEDK.EC_ProfileIDAtIndex(cloudUserID.value, 0)
+            if libEDK.EC_LoadUserProfile(cloudUserID.value, userID.value, profileID, PROFILE_VERSION) == ErrorCodeEnum.EDK_OK:
                 print "Loading finished"
             else:
                 print "Loading failed"
+                exit()
 
-    elif commands[0] == "set_actions":
-        if (libEDK.IEE_MentalCommandSetActiveActions(userID, 0x0002 | 0x0004)== 0): #pull = 0x0004
-            print "PUSH and PULL set active for user", userID.value,"."             
+    elif commands[0] == "set":
+        # The second argument is ACTIONLIST without MC_NEUTRAL
+        if libEDK.IEE_MentalCommandSetActiveActions(userID, ACTIONLIST ^ MentalCommandActionEnum.MC_NEUTRAL) == ErrorCodeEnum.EDK_OK:
+            print "Actions set active for user", userID.value, "."
         else:
             print "Activating actions FAILED!"
- 
-    elif commands[0] == "training_action": #Input Ex.: training_action push
+
+    # Set action that will be trained if call training_start
+    elif commands[0] == "train":  # Input Ex.: training_action push
         if len(commands) == 2:
-            if commands[1] == "neutral":
-                if libEDK.IEE_MentalCommandSetTrainingAction(userID, 0x0001) == 0:
-                    print "Setting Mental Command Training Action NEUTRAL for user",userID.value,"!"
-                    wrongargument = False
-                else:
-                    print" Failed to set Mental Command Training Action NEUTRAL for user",userID.value,"!"
- 
-            elif commands[1] == "push":
-                if libEDK.IEE_MentalCommandSetTrainingAction(userID, 0x0002) == 0:
-                    print "Setting Mental Command Training Action PUSH for user",userID.value,"!"
-                    wrongargument = False
-                else:
-                    print" Failed to set Mental Command Training Action PUSH for user",userID.value,"!"
- 
- 
-            elif commands[1] == "pull": 
-                if libEDK.IEE_MentalCommandSetTrainingAction(userID, 0x0004) == 0:
-                    print "Setting Mental Command Training Action PULL for user",userID.value,"!"
-                    wrongargument = False
-                else:
-                    print" Failed to set Mental Command Training Action PULL for user",userID.value,"!"
- 
-            else:
-                wrongargument = True
-                 
+            for action in MentalCommandActionEnum:
+                # Can only train action that defined in ACTIONLIST
+                if (('MC_' + commands[1].upper()) == action.name) and (action.value | ACTIONLIST) == ACTIONLIST:
+                    errorCode = libEDK.IEE_MentalCommandSetTrainingAction(userID, action.value)
+                    if errorCode == ErrorCodeEnum.EDK_OK:
+                        print 'Set action {} for training \n'.format(action.name)
+                        wrongArgument = False
+                    else:
+                        print 'Failed to set action {} for training, error: {} \n'.format(action.name, errorCode)
         else:
-            print "Action cannot be Trained!"
- 
-    elif commands[0] == "training_start": #Start Training
+            wrongArgument = True
+            print 'Wrong command format. Should be \"training_action [action_name]\"'
+
+    elif commands[0] == "start":
         if len(commands) == 1:
-            if libEDK.IEE_MentalCommandSetTrainingControl(userID, 1) == 0: #MC_START
-                libEDK.IEE_MentalCommandGetTrainingAction(userID, pTrainingActionOut)
-                print "Training for", IEE_MentalCommandAction_enum[TrainingActionOut.value],"Start!"
+            if libEDK.IEE_MentalCommandSetTrainingControl(userID, MentalCommandTrainingControlEnum.MC_START) == ErrorCodeEnum.EDK_OK:
+                err = libEDK.IEE_MentalCommandGetTrainingAction(userID, ptrTrainingActionOut)
+                print "Training ", parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value), " start! "
             else:
-                print "Training Failed"
+                print "Start training ", [TrainingActionOut.value], " failed!"
         else:
-            wrongargument = True
-                 
-    elif commands[0] == "training_accept": #Accept Training
+            wrongArgument = True
+
+    elif commands[0] == "accept":
         if len(commands) == 1:
-            if libEDK.IEE_MentalCommandSetTrainingControl(userID, 2) == 0: #MC_ACCEPT
-                libEDK.IEE_MentalCommandGetTrainingAction(userID, pTrainingActionOut)
-                print "Accepting Training for",IEE_MentalCommandAction_enum[TrainingActionOut.value]
-                #while handleMentalCommandEvent(eEvent)!= 4: #Wait for EmoEngine to Confirm Acceptance
-                #    pass
-                #wrongargument = False
+            if libEDK.IEE_MentalCommandSetTrainingControl(userID, MentalCommandTrainingControlEnum.MC_ACCEPT) == ErrorCodeEnum.EDK_OK:
+                libEDK.IEE_MentalCommandGetTrainingAction(userID, ptrTrainingActionOut)
+                print "Accepting Training for", parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value)
             else:
                 print "Training Acceptance Failed"
         else:
-            wrongargument = True
-             
-    elif commands[0] == "training_reject": #Reject Training
+            wrongArgument = True
+
+    elif commands[0] == "reject":
         if len(commands) == 1:
-            if libEDK.IEE_MentalCommandSetTrainingControl(userID, 3) == 0: #MC_REJECT
-                libEDK.IEE_MentalCommandGetTrainingAction(userID, pTrainingActionOut)
-                print "Rejecting training for",IEE_MentalCommandAction_enum[TrainingActionOut.value]
-                #while handleMentalCommandEvent(eEvent)!= 6: #Wait for EmoEngine to Confirm Rejection
-                 #   pass
-                #wrongargument = False
+            if libEDK.IEE_MentalCommandSetTrainingControl(userID, MentalCommandTrainingControlEnum.MC_REJECT) == ErrorCodeEnum.EDK_OK:
+                libEDK.IEE_MentalCommandGetTrainingAction(userID, ptrTrainingActionOut)
+                print "Rejecting training for", parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value)
             else:
                 print "Training Reject Failed"
         else:
-            wrongargument = True           
-         
-    elif commands[0] == "training_erase": #Erase Training Data
+            wrongArgument = True
+
+    elif commands[0] == "erase":
         if len(commands) == 1:
-            if libEDK.IEE_MentalCommandSetTrainingControl(userID, 4) == 0: #MC_Erase
-                if libEDK.IEE_MentalCommandGetTrainingAction(userID, pTrainingActionOut) != 0:
-                    #while handleMentalCommandEvent(eEvent)!= 5: #Wait for EmoEngine to Confirm Erase
-                     #  pass
-                    #print "Training for ",IEE_MentalCommandAction_enum[TrainingActionOut.value]," Erased!"
-                    wrongargument = False
-            #else:
-            #    print "Training Erase Failed"
+            if libEDK.IEE_MentalCommandSetTrainingControl(userID, MentalCommandTrainingControlEnum.MC_ERASE) == ErrorCodeEnum.EDK_OK:
+                if libEDK.IEE_MentalCommandGetTrainingAction(userID, ptrTrainingActionOut) != 0:
+                    print "Erase training for", parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value)
+                    wrongArgument = False
+            else:
+               print "Training Erase Failed"
         else:
-            wrongargument = True
-            
-    elif commands[0] == "running":  
-        global running      
-        running = 1	
- 
+            wrongArgument = True
+
+    elif commands[0] == "running":
+        global running
+        running = True
+
     elif commands[0] == "report":
         print "Report:"
-        if libEDK.IEE_MentalCommandGetTrainedSignatureActions(userID, pActionOut) == 0:
-            print "Trained Action:",ActionOut.value,"\t (Should be 7)"
+        if libEDK.IEE_MentalCommandGetTrainedSignatureActions(userID, pActionOut) == ErrorCodeEnum.EDK_OK:
+            print "Trained Action:", ActionOut.value, "\n"
         else:
             print "Error in Retrieving Trained Signature Actions"
-        if libEDK.IEE_MentalCommandGetActionSkillRating(userID,0x0001,pNeutralSkillRating) == 0:
-            print "Neutral Skill Rating:",NeutralSkillRating.value
-        else:
-            print "Error in Retrieving Neutral Skill Rating"
-        if libEDK.IEE_MentalCommandGetActionSkillRating(userID,0x0002,pPushSkillRating) == 0:
-            print "Push Skill Rating:",PushSkillRating.value
-        else:
-            print "Error in Retrieving Neutral Skill Rating"           
-        if libEDK.IEE_MentalCommandGetActionSkillRating(userID,0x0004,pPullSkillRating) == 0:
-            print "Pull Skill Rating:",PullSkillRating.value
-        else:
-            print "Error in Retrieving Neutral Skill Rating"
- 
+        for action in MentalCommandActionEnum:
+            if action.value == MentalCommandActionEnum.MC_NONE or action.value == MentalCommandActionEnum.MC_NEUTRAL:
+                continue
+            # Get skill rating of each action in ACTIONLIST
+            if action.value | ACTIONLIST == ACTIONLIST:
+                skillRating = c_float(0)
+                ptrSkillRating = pointer(skillRating)
+                libEDK.IEE_MentalCommandGetActionSkillRating(userID, action.value, ptrSkillRating)
+                print 'Action: {} - skill rating: {}'.format(action.name, skillRating.value)
     else:
-        print "Unknown Command", commands[0],"."
- 
-    if wrongargument == True:
-        print "Wrong argument(s) for command ",commands,"."
- 
+        print "Unknown Command", commands[0], "."
+
+    if wrongArgument:
+        print "Wrong argument(s) for command ", commands, "."
     return
- 
- 
-def kbhit():
-    ''' Returns True if keyboard character was hit, False otherwise.
-    '''
-    if sys.platform.startswith('win32'):
-        return msvcrt.kbhit()   
-    else:
-        dr,dw,de = select([sys.stdin], [], [], 0)
-        return dr != []
 
 def getcommand():
-    while 1: 
+    while 1:
         command = str(raw_input())
         command = command.lower()
         parsecommand(command)
-		
-# -------------------------------------------------------------------------
 
-userName    = "Your account name"
-password    = "Your password"
-
-profileName = "EmotivProfile"
-version     = -1    # Lastest version
-
-userCloudID   = c_uint(0)
-userCloudIDP  = pointer(userCloudID)
-
-state         = c_int(0)
-
-#---------------------------------------------------------------------------
-input=''
+#----------------------------------------------------------------------------
 print "========================================================================"
 print "Example to show how to train Mental Commands from EmoEngine/EmoComposer."
 print "========================================================================"
-print "Press '1' to start and connect to the EmoEngine                         "
-print "Press '2' to connect to the EmoComposer                                 "
-print ">> "
 #----------------------------------------------------------------------------
+# print 'Action list:'
+# for action in ACTIONLIST_ARRAY:
+    # print '{}'.format(parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value))
 
-option = int(raw_input())
-
-if option == 1:
-    if libEDK.IEE_EngineConnect("Emotiv Systems-5") != 0:
-        print "Emotiv Engine start up failed."
-elif option == 2:
-    if libEDK.IEE_EngineRemoteConnect("127.0.0.1", composerPort) != 0:
-        print "Cannot connect to EmoComposer on"
-else :
-    print "option = ?"
+if libEDK.IEE_EngineConnect("Emotiv Systems-5") != 0:
+    print "Emotiv Engine start up failed."
 
 if libEDK.EC_Connect() != 0:
     print "Cannot connect to Emotiv Cloud"
@@ -378,40 +338,36 @@ if libEDK.EC_Login(userName, password) != 0:
 
 print "Logged in as %s" % userName
 
-if libEDK.EC_GetUserDetail(userCloudIDP) != 0:
+if libEDK.EC_GetUserDetail(ptrCloudUserID) != 0:
     exit()
- 
-print "Enter your command. Enter \"help\" for commands"
-print ">>"
- 
+
+print "Enter your command. Enter \"help\" for commands\n"
+
 thread1 = Thread(target = getcommand)
 thread1.start()
- 
+
 while 1:
     state = libEDK.IEE_EngineGetNextEvent(eEvent)
-    if state == 0: #EDK_OK
+    if state == ErrorCodeEnum.EDK_OK:
         EngineEventType = libEDK.IEE_EmoEngineEventGetType(eEvent)
-        libEDK.IEE_EmoEngineEventGetUserId(eEvent, user)
-        if EngineEventType == 16: #User Added
-            print "New User", userID.value,"added"
- 
-        if EngineEventType == 32: #User Removed
-            print "User ", userID.value," Removed"
- 
-        if EngineEventType == 64: #EmoState Updated
+        libEDK.IEE_EmoEngineEventGetUserId(eEvent, ptrUserID)
+        if EngineEventType == EngineEventEnum.IEE_UserAdded:
+            print "New User", userID.value, "added"
+
+        if EngineEventType == EngineEventEnum.IEE_UserRemoved:
+            print "User ", userID.value, " Removed"
+
+        if EngineEventType == EngineEventEnum.IEE_EmoStateUpdated:
             libEDK.IEE_EmoEngineEventGetEmoState(eEvent, eState)
             mental_state = libEDK.IS_MentalCommandGetCurrentAction(eState)
             power = libEDK.IS_MentalCommandGetCurrentActionPower(eState)
 
-            if running == 1:
-               print "Mental State:",IEE_MentalCommandAction_enum[mental_state],"\t Power:",power
- 
-        if EngineEventType == 256: #MentalCommandEvent
+            if running:
+                print 'Current command: {} - Power: {}'.format(parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value), power)
+
+        if EngineEventType == EngineEventEnum.IEE_MentalCommandEvent:
             handleMentalCommandEvent(eEvent)
 
-     
-        time.sleep(.015)
-		
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 libEDK.IEE_EmoStateFree(eState)
 libEDK.IEE_EmoEngineEventFree(eEvent)

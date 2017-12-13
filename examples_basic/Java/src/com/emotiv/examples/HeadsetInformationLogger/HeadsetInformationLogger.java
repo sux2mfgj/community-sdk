@@ -13,7 +13,6 @@ import com.emotiv.Iedk.*;
 import com.emotiv.Iedk.EmoState.IEE_InputChannels_t;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
 
 /** Simple example of JNA interface mapping and usage. */
 public class HeadsetInformationLogger {

@@ -73,7 +73,7 @@ int main(int argc,char** argv)
 	// Initialize the users
 	// NOTE: Only expecting two for now
 	unsigned int userID = 0;
-    std::vector<std::pair<unsigned int, std::string>> userLists;
+    std::vector<std::pair<unsigned int, std::string> > userLists;
 
     std::cout << "===================================================================" << std::endl;
     std::cout << "Example to show how to log the EEG data from maximum 2 dongles. \n";
