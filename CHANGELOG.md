@@ -5,7 +5,7 @@ SDK CHANGELOGS
 #### Version 3.5.1
 * New features and improvement:
     * Support Android for SDK 3.5.1 and introduce some android examples
-    * Update new license model for sdk 3.5.1. Removed dayly and monthly debit limit.
+    * Update new license model for sdk 3.5.1. Removed daily and monthly debit limit.
 	  support annual license
     * Update EmotivTools for version 3.5.1 both Windows and MAC        
     * Update emostatelogger examples for Csharp and Java
