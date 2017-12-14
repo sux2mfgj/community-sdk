@@ -4,20 +4,21 @@ SDK CHANGELOGS
 
 #### Version 3.5.1
 * New features and improvement:
-    * Support Android for SDK 3.5.1 and introduce some android examples
-    * Update new license model for sdk 3.5.1. Removed daily and monthly debit limit.
-	  support annual license
-    * Update EmotivTools for version 3.5.1 both Windows and MAC        
-    * Update emostatelogger examples for Csharp and Java
-    * Introduce EdfHeaderConverter tool for mac
+    * Support Android with some new examples
+    * Update licensing model:
+        * Removed daily and monthly debit limit
+        * Add annual license support
+    * Update EmotivTools for version 3.5.1 on Windows and macOS        
+    * Update EmoStateLogger example for C# and Java
+    * Introduce EdfHeaderConverter tool for macOS
     
 * Bug fixes:
-    * Fixed error "Expried license" after renew license key
-    * Fixed issue of MentalCommandWithCloudProfile - python example
+    * Fixed error "Expired License" after license key renewal
+    * Fixed issue of MentalCommandWithCloudProfile in Python example
 	
 * Platforms:
-    * SDK v3.5.1 support Windows, MAC OS, Android
-    * Linux, IOS: still use SDK version 3.3.3
+    * SDK v3.5.1 support Windows, macOS, Android
+    * Linux, iOS: still use SDK version 3.3.3
 
 #### Version 3.5.0
 * New features and improvement:
@@ -41,8 +42,8 @@ SDK CHANGELOGS
      ```
     * Support new licensing model - for details https://www.emotiv.com/developer/
 * Platforms: 
-    * SDK v3.5.0 support Windows, MAC OS
-    * Linux, Android, IOS: still use SDK version 3.3.3
+    * SDK v3.5.0 support Windows, macOS
+    * Linux, Android, iOS: still use SDK version 3.3.3
     
 #### Version 3.4.0
 * Bug fixes:
@@ -67,8 +68,8 @@ SDK CHANGELOGS
     * BTLE connection is not stable on Windows 10 due to intermediate packet lost
     
 * Platforms: 
-    * SDK v3.4.0 support Windows, MAC OS
-    * Linux, Android, IOS: still use SDK version 3.3.3
+    * SDK v3.4.0 support Windows, macOS
+    * Linux, Android, iOS: still use SDK version 3.3.3
 
 #### Version 3.3.3
 * Bug fixes:
