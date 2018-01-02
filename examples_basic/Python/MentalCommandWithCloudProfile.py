@@ -35,7 +35,7 @@ except Exception as e:
 ##-------------------------------------------------------------------------------##
 ##------------- EDIT THESE FIELDS BEFORE CONTINUING ----------------------------###
 userName = "your_username"
-password = "your_username"
+password = "your_password"
 
 profileName = "profileName"
 
@@ -59,6 +59,11 @@ running = False
 
 eEvent = libEDK.IEE_EmoEngineEventCreate()
 eState = libEDK.IEE_EmoStateCreate()
+
+
+IS_MentalCommandGetCurrentActionPower = libEDK.IS_MentalCommandGetCurrentActionPower
+IS_MentalCommandGetCurrentActionPower.argtypes = [c_void_p]
+IS_MentalCommandGetCurrentActionPower.restype = c_float
 
 userID    = c_uint(0)
 ptrUserID = pointer(userID)
@@ -193,7 +198,6 @@ def parsecommand(inputs):
         libEDK.EC_GetProfileId(cloudUserID, profileName, ptrProfileID)
 
         if profileID.value >= 0:
-            print "Profile with %s is existed" % profileName
             if libEDK.EC_UpdateUserProfile(cloudUserID.value, userID.value, profileID.value, profileName) == ErrorCodeEnum.EDK_OK:
                 print "Updating finished"
             else:
@@ -202,6 +206,7 @@ def parsecommand(inputs):
                 #       profileType = 1 if you are using EmoKey
                 # Read the API Reference document (EmotivCloudClient.h) for more information
                 profileType = 0
+                #Create a new profile if not existed
                 if libEDK.EC_SaveUserProfile(cloudUserID.value, userID.value, profileName, profileType) == ErrorCodeEnum.EDK_OK:
                     print "Saving finished"
                 else:
@@ -360,10 +365,10 @@ while 1:
         if EngineEventType == EngineEventEnum.IEE_EmoStateUpdated:
             libEDK.IEE_EmoEngineEventGetEmoState(eEvent, eState)
             mental_state = libEDK.IS_MentalCommandGetCurrentAction(eState)
-            power = libEDK.IS_MentalCommandGetCurrentActionPower(eState)
+            power = IS_MentalCommandGetCurrentActionPower(eState)
 
             if running:
-                print 'Current command: {} - Power: {}'.format(parseEdkEnum(MentalCommandActionEnum, TrainingActionOut.value), power)
+                print 'Current command: {} - Power: {}'.format(parseEdkEnum(MentalCommandActionEnum, mental_state), power)
 
         if EngineEventType == EngineEventEnum.IEE_MentalCommandEvent:
             handleMentalCommandEvent(eEvent)
