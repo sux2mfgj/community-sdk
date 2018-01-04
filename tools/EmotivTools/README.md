@@ -19,7 +19,7 @@ From sdk 3.5, you have to activate license and debit (authorize ) number of sess
 * From menu "Tools" button choose "License Activator"
 * You have to login to Emotiv Cloud with your emotiv id for authorizing license.
 * After loging successfully, you can Query License Information to get remain sessions and total sessions of license from Server.
-* After loging successfully, you can authorize the license with a debit number (default 0).
+* After loging successfully, you can authorize the license with a debit number (default 0), but should debit a number > 0 for the first time.
 * Check activating status and activated license detail for using the license.
 * You can get current activated license detail without login.
 
