@@ -59,7 +59,7 @@ http://emotiv.github.io/community-sdk/
 There are 2 groups of examples :
  * Examples which could run without SDK license are placed inside folder **examples_basic**
  * Examples which need to have SDK license to run are placed inside folder **examples_extra_prime**.
-   In case you want to use these functionality in your development, please [contact us for license](https://www.emotiv.com/sdk-premium-edition-application-form/)
+   In case you want to use these functionality in your development, please [contact us for license](https://www.emotiv.com/developer/)
 
 Table below describes examples in detail :
 
