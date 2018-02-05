@@ -27,10 +27,11 @@
     
  * 1 session = 30 minutes.
     * For Basic, Advanced license: Performance Metric updated each 10 seconds.
-    * For Advanced license: Start counting session at the first call IEE_DataUpdateHandle()
-                            Stop counting session at call IEE_EngineDisconnect();
-    * For Prime license: allows full rate of Performance Metric.
-                            Start counting session at the first call IEE_DataUpdateHandle()
-                            or any APIs in IEmoStatePerformanceMetric class.
-                            Stop counting session at call IEE_EngineDisconnect();
-
+    * For Advanced license (PRO License): Start counting session at the first call IEE_DataUpdateHandle()
+                                          Stop counting session at call IEE_EngineDisconnect();
+    * For Prime license (Commercial License): Allows full rate of Performance Metric.
+                                              Start counting session at the first call IEE_DataUpdateHandle()
+                                              or any APIs in IEmoStatePerformanceMetric class.
+                                              Stop counting session at call IEE_EngineDisconnect();
+  
+* For more information about license. Please see the [Developer page](https://www.emotiv.com/developer/)
