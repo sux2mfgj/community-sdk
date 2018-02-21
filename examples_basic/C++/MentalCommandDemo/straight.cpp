@@ -57,6 +57,7 @@ void promptUser();
  */
 #include "drone.hpp"
 const float THRESHOLD = 0.7;
+const int one_shut_loop = 10;
 
 int main(int argc, char** argv) {
 
@@ -208,45 +209,54 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-enum class movement_state
+static auto move_drone_straight(IEE_MentalCommandAction_t action, float power) -> void
 {
-	straight,
-	straight2,
-	right,
-	right2,
-	left,
-	left2,
-	stop,
-};
-
-movement_state move_state = movement_state::straight;
-
-static auto move_drone(IEE_MentalCommandAction_t action, float power) -> void
-{
-	std::cout << "push: " << power << std::endl;
-	if(THRESHOLD < power)
-	{
-		ardrone_command(ardrone_actions::hover);
-	}
 	switch(action)
 	{
 		case MC_PUSH:
-			ardrone_command(ardrone_actions::forward);
-			break;
-		case MC_PULL:
-			//TODO
-			//ardrone_command(ardrone_actions::backword);
-			break;
-		case MC_LEFT:
-			ardrone_command(ardrone_actions::left);
-			break;
-		case MC_RIGHT:
-			ardrone_command(ardrone_actions::right);
+			std::cout << "push: " << power << std::endl;
+			if(THRESHOLD > power)
+			{
+				for(int i=0; i<one_shut_loop;++i)
+				{
+					ardrone_command(ardrone_actions::forward);
+				}
+				ardrone_command(ardrone_actions::hover);
+			}
+			else 
+			{
+				ardrone_command(ardrone_actions::hover);
+			}
+
 			break;
 		default:
 			ardrone_command(ardrone_actions::hover);
 			break;
 	}
+}
+
+static auto move_drone(IEE_MentalCommandAction_t action, float power) -> void
+{
+	switch(action)
+	{
+		case MC_PUSH:
+			std::cout << "push: " << power << std::endl;
+			//if(0.8 > power)
+			//{
+				ardrone_command(ardrone_actions::forward);
+			/*
+			}
+			else 
+			{
+				ardrone_command(ardrone_actions::hover);
+			}
+			*/
+
+			break;
+		default:
+			ardrone_command(ardrone_actions::hover);
+			break;
+	}	
 }
 
 void sendMentalCommandAnimation(SocketClient& sock, EmoStateHandle eState) {
@@ -259,7 +269,7 @@ void sendMentalCommandAnimation(SocketClient& sock, EmoStateHandle eState) {
 
 	//action2string(actionType, actionPower);
 	//move_drone(actionType, actionPower);
-	move_drone(actionType, actionPower);
+	move_drone_straight(actionType, actionPower);
 	os << static_cast<int>(actionType) << ","
 		<< static_cast<int>(actionPower*100.0f);
 

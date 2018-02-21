@@ -57,6 +57,7 @@ void promptUser();
  */
 #include "drone.hpp"
 const float THRESHOLD = 0.7;
+const int one_shut_loop = 10;
 
 int main(int argc, char** argv) {
 
@@ -221,27 +222,64 @@ enum class movement_state
 
 movement_state move_state = movement_state::straight;
 
+static auto one_shot(ardrone_actions action) -> void
+{
+	for(int i=0; i<one_shut_loop;++i)
+	{
+		ardrone_command(action);
+	}
+
+}
+
 static auto move_drone(IEE_MentalCommandAction_t action, float power) -> void
 {
-	std::cout << "push: " << power << std::endl;
-	if(THRESHOLD < power)
-	{
-		ardrone_command(ardrone_actions::hover);
-	}
 	switch(action)
 	{
 		case MC_PUSH:
-			ardrone_command(ardrone_actions::forward);
-			break;
-		case MC_PULL:
-			//TODO
-			//ardrone_command(ardrone_actions::backword);
-			break;
-		case MC_LEFT:
-			ardrone_command(ardrone_actions::left);
-			break;
-		case MC_RIGHT:
-			ardrone_command(ardrone_actions::right);
+			std::cout << "push: " << power << std::endl;
+			if(THRESHOLD > power)
+			{
+				switch(move_state)
+				{
+					case movement_state::straight:
+						one_shot(ardrone_actions::forward);
+						move_state = movement_state::straight2;
+						break;
+					case movement_state::straight2:
+						one_shot(ardrone_actions::forward);
+						move_state = movement_state::right;
+						break;
+					case movement_state::right:
+						one_shot(ardrone_actions::right);
+						move_state = movement_state::right2;
+						usleep(500000);
+						break;
+					case movement_state::right2:
+						one_shot(ardrone_actions::right);
+						move_state = movement_state::left;
+						usleep(500000);
+						break;
+					case movement_state::left:
+						one_shot(ardrone_actions::left);
+						move_state = movement_state::left2;
+						usleep(500000);
+						break;
+					case movement_state::left2:
+						one_shot(ardrone_actions::left);
+						move_state = movement_state::stop;
+						usleep(500000);
+						break;
+					case movement_state::stop:
+						ardrone_command(ardrone_actions::hover);
+						break;
+
+				}
+			}
+			else 
+			{
+				ardrone_command(ardrone_actions::hover);
+			}
+
 			break;
 		default:
 			ardrone_command(ardrone_actions::hover);
