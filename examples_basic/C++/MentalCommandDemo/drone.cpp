@@ -63,6 +63,19 @@ static auto _forward() -> void
 	send_to_ardrone(content);
 }
 
+static auto _right() -> void
+{
+	auto format = "AT*PCMD=%u,1,%d,%d,%d,%d\r";
+	auto content = string_format(format, seq_num++, 1102263091, 0, 0, 0, 0);
+	send_to_ardrone(content);
+}
+
+static auto _left() -> void
+{
+	auto format = "AT*PCMD=%u,1,%d,%d,%d,%d\r";
+	auto content = string_format(format, seq_num++, -1102263091, 0, 0, 0, 0);
+	send_to_ardrone(content);
+}
 void init_drone(void)
 {
 	sock = socket(AF_INET, 
@@ -102,6 +115,12 @@ auto ardrone_command(ardrone_actions action) -> void
 			{
 				prev_function = _forward;
 			}
+			break;
+		case ardrone_actions::right:
+			prev_function = _right;
+			break;
+		case ardrone_actions::left:
+			prev_function = _left;
 			break;
 		case ardrone_actions::continure:
 			if(!is_flying)

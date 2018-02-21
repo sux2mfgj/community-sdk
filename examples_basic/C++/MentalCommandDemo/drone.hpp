@@ -6,6 +6,8 @@ enum class ardrone_actions
 	landing,
 	hover,
 	forward,
+	right,
+	left,
 	continure,
 };
 
