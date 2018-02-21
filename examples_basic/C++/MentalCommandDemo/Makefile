@@ -1,4 +1,4 @@
-PROJECT_ROOT=$(HOME)/work/community-sdk-master
+PROJECT_ROOT=$(HOME)/work/bci_drone
 INCLUDE_PATH=$(PROJECT_ROOT)/include
 LIBRARY_PATH=$(PROJECT_ROOT)/bin/armhf
 
