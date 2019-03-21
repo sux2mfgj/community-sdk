@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 		/*************************************************************/
 		else {
 			std::cout << "Emotiv Driver started!" << std::endl;
-			//ardrone_command(ardrone_actions::take_off);
+			ardrone_command(ardrone_actions::take_off);
 		}
 
 		int startSendPort = 20000;
